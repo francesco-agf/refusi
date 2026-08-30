@@ -43,7 +43,7 @@ const log = (...a) => console.log(...a);
   // 3. col nome si comincia e a fine turno il punteggio parte
   const t3 = await page.evaluate(async () => {
     const R = window.__refusi;
-    document.getElementById('nameInput').value = 'Francesco';
+    localStorage.setItem('agf.giocatore', 'Francesco');   // il nome si firma, non si digita all'ingresso
     document.getElementById('startBtn').click();
     await new Promise(r => setTimeout(r, 200));
     const partito = R.stato().fase;
