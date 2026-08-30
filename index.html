@@ -341,6 +341,10 @@
   body.campo-stretto .btn{padding:8px 11px;font-size:10.5px}
   body.campo-stretto .altro{padding:8px 11px}
   body.campo-stretto .altro .nome{font-size:17px}
+  body.campo-minimo .altro{display:none}
+  body.campo-minimo .ov-kicker{display:none}
+  body.campo-minimo .rivelazione{font-size:11px;line-height:1.45}
+  body.campo-minimo .overlay{gap:4px;padding:9px 9px}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
@@ -442,6 +446,7 @@
         <div class="stat-row"><span class="stat-key">Lettere</span><span class="readout mid" id="presi">0</span></div>
         <div class="stat-row"><span class="stat-key">Parole</span><span class="readout mid" id="paroleN">0</span></div>
         <div class="stat-row"><span class="stat-key">A segno</span><span class="readout mid" id="precisione">—</span></div>
+        <div class="stat-row" id="rigaSigilli" hidden><span class="stat-key">Sigilli</span><span class="readout mid" id="sigilliN">0</span></div>
       </div>
       <div class="panel">
         <div class="panel-label"><span>In canna</span><span>∞</span></div>
@@ -529,6 +534,17 @@
     <p>Ogni tanto una lettera cade composta in <b>Comic Sans</b>. Quello è il refuso vero:
     abbatterlo vale <b>tre volte</b> gli altri. Si riconosce a occhio, come in tipografia.</p>
 
+    <h3>Il Refuso</h3>
+    <p>Ogni <b>tre passate</b> non cade una lettera in Comic Sans: cade <b>il</b> Comic Sans.
+    Grosso come mezzo foglio, stampato fuori registro, e non muore al primo colpo —
+    ne regge <b>cinque</b>.</p>
+    <p>Finché sta sul foglio <b>contagia</b>: le lettere che cadono cominciano a comporsi
+    anche loro in Comic Sans, e più passa il tempo più succede spesso. Se lo lasci arrivare
+    alla linea di base va in stampa così com'è e ti costa una bozza.</p>
+    <p>Se lo abbatti, tutte le lettere infette bruciano insieme a lui e ti resta il
+    <b>sigillo</b>: la <i>f</i> della casa impressa a secco sul foglio, che si vede in
+    rilievo per tutto il turno e si conta in classifica.</p>
+
     <h3>Le facce</h3>
     <p>Le lettere cadono ognuna nel suo carattere — Bodoni, Garamond, Baskerville, Anton,
     Archivo, Playfair, Inter. Non serve più distinguerle per giocare: servono a far sembrare
@@ -541,6 +557,7 @@
       <tr><td>Lettera della parola</td><td>+50 × passata</td></tr>
       <tr><td>Parola composta</td><td>+1.000 × passata, una bozza indietro e trenta secondi di premio</td></tr>
       <tr><td>Comic Sans</td><td>×3</td></tr>
+      <tr><td>Il Refuso</td><td>200 × passata a colpo, 2.500 × passata quando cade, più 100 × passata per ogni lettera infetta</td></tr>
       <tr><td>Serie</td><td>ogni quattro lettere di fila senza perdere una bozza il moltiplicatore sale, fino a ×5</td></tr>
     </table>
     <p>Ogni venti lettere si sale di <b>passata</b>: cadono più fitte e più in fretta.</p>
@@ -661,6 +678,8 @@
   const elPresi = document.getElementById("presi");
   const elParoleN = document.getElementById("paroleN");
   const elPrecisione = document.getElementById("precisione");
+  const elSigilli = document.getElementById("sigilliN");
+  const rigaSigilli = document.getElementById("rigaSigilli");
   const elCombo = document.getElementById("comboTag");
   const elMunizione = document.getElementById("munizione");
   const elParola = document.getElementById("parola");
@@ -675,6 +694,10 @@
   let W = 420, H = 560, scala = 1, base = 480;
   let fase = "intro";
   let reso = false;           // turno chiuso a mano dal pulsante «abbandona»
+  let refuso = null;          // il Comic Sans gigante, quando c'è
+  let sigilli = 0;            // le f impresse a secco: una per refuso battuto
+  let bolli = [];             // dove sono state impresse, restano sul foglio
+  let sigilloVivo = null;     // l'impressione in corso, per l'animazione
   let punti = 0, record = 0, bozze = BOZZE, passata = 1, risolte = 0;
   let presi = 0, composte = 0, colpiSparati = 0, scappati = 0, parolePrese = 0;
   let combo = 0, comboMax = 0;
@@ -749,10 +772,15 @@
   function adattaScheda(){
     if (!overlay || overlay.hidden) return;
     const c = document.body.classList;
-    c.remove("campo-basso"); c.remove("campo-stretto");
-    if (overlay.scrollHeight > overlay.clientHeight + 1){
+    c.remove("campo-basso"); c.remove("campo-stretto"); c.remove("campo-minimo");
+    const stretto = function(){ return overlay.scrollHeight > overlay.clientHeight + 1; };
+    if (stretto()){
       c.add("campo-basso");
-      if (overlay.scrollHeight > overlay.clientHeight + 1) c.add("campo-stretto");
+      if (stretto()){
+        c.add("campo-stretto");
+        // ultimo grado: resta solo quello che serve a giocare ancora
+        if (stretto()) c.add("campo-minimo");
+      }
     }
   }
   new MutationObserver(adattaScheda).observe(overlay,
@@ -801,6 +829,7 @@
     document.getElementById("altroGioco").hidden = true;
     ovBody.hidden = false; ovTitle.hidden = false;
     reso = false;
+    refuso = null; sigilli = 0; bolli = []; sigilloVivo = null;
     punti = 0; bozze = BOZZE; passata = 1; risolte = 0;
     presi = 0; colpiSparati = 0; scappati = 0; parolePrese = 0;
     combo = 0; comboMax = 0;
@@ -838,12 +867,54 @@
     return base / (secondi * 1000);
   }
 
+
+  /* ---------- il marchio di casa ----------
+     La stessa carta in tutti e quattro i giochi: il monogramma in filigrana,
+     appena visibile in controluce come in un foglio vero. E quando si batte il
+     guasto di macchina, lo stesso segno torna — ma impresso a secco, in rilievo.
+     Uno sta sempre lì e non si guadagna; l'altro si guadagna e resta sul foglio
+     per tutta la partita. */
+const MARK_PATHS = ["M 105 22 C 106 24 107 26 107 28 C 107 29 106 31 106 32 L 105 34 C 104 36 101 38 98 38 C 96 38 95 37 94 37 C 93 37 92 36 92 35 C 91 35 91 34 90 33 C 90 33 90 32 90 32 L 90 31 C 90 29 90 27 92 25 C 93 23 94 21 94 19 C 94 15 92 13 90 12 C 87 11 85 11 82 11 C 76 11 71 13 67 18 C 63 23 61 31 61 41 L 61 52 C 61 54 61 57 60 59 C 60 61 59 62 59 63 C 59 64 58 65 57 66 C 55 67 55 68 54 68 C 54 68 53 68 51 69 C 51 69 51 69 51 69 L 85 69 L 85 70 L 61 70 L 61 151 L 61 145 C 61 146 61 146 61 146 C 61 146 61 147 62 147 C 62 148 62 148 63 149 C 63 149 64 150 65 150 C 66 150 67 151 69 151 C 75 151 78 151 79 151 L 79 152 L 31 152 L 31 151 L 38 151 C 40 151 41 150 42 150 C 43 150 44 149 44 149 C 45 149 45 148 45 148 C 46 147 46 147 46 146 C 46 146 46 146 46 146 L 46 70 L 31 70 L 31 69 C 34 69 36 69 38 68 C 40 67 41 66 42 65 C 43 64 44 63 45 61 C 45 60 46 59 46 58 C 46 57 46 56 46 54 C 46 53 46 52 46 52 L 46 52 L 46 52 C 46 50 47 48 47 46 C 47 43 48 40 49 37 C 49 35 50 32 51 31 C 52 29 53 27 55 26 C 58 21 62 18 67 14 C 72 11 78 10 83 10 C 87 10 91 10 94 12 C 97 13 99 14 101 16 C 103 18 104 20 105 22 ", "M 101 135 C 103 137 104 139 104 142 C 104 145 103 147 101 149 C 100 150 97 151 95 151 C 92 151 90 150 88 149 C 86 147 85 145 85 142 C 85 139 86 137 88 135 C 90 133 92 132 95 132 C 97 132 100 133 101 135 "];
+  const MARK_BOX = [130, 168];
+  let markPath = null;
+  try { if (window.Path2D) markPath = MARK_PATHS.map(function(d){ return new Path2D(d); }); }
+  catch(e){ markPath = null; }
+
+  function filigrana(c, cx, cy, altezza, alfa, colore){
+    if (!markPath) return;
+    c.save();
+    c.globalAlpha = alfa;
+    c.fillStyle = colore;
+    const k = altezza / MARK_BOX[1];
+    c.translate(cx - (MARK_BOX[0] * k) / 2, cy - altezza / 2);
+    c.scale(k, k);
+    for (const p of markPath) c.fill(p);
+    c.restore();
+  }
+
+  /* Il sigillo: una f impressa a secco. Su un foglio bianco un'impressione a
+     secco non è inchiostro, è un rilievo — si vede solo perché ha un'ombra da
+     una parte e una luce dall'altra. Quindi si disegna due volte, sfalsata. */
+  function disegnaSigillo(c, cx, cy, raggio, forza, chiaro){
+    if (!markPath) return;
+    const d = Math.max(1, raggio * 0.045);
+    c.save();
+    c.globalAlpha = forza * (chiaro ? .5 : .34);
+    c.strokeStyle = chiaro ? "rgba(237,234,227,.9)" : "rgba(23,25,29,.55)";
+    c.lineWidth = Math.max(1, raggio * 0.05);
+    c.beginPath(); c.arc(cx, cy, raggio, 0, 6.2832); c.stroke();
+    c.restore();
+    filigrana(c, cx + d, cy + d, raggio * 1.25, forza * (chiaro ? .30 : .20), chiaro ? "#000" : "#0E1116");
+    filigrana(c, cx - d, cy - d, raggio * 1.25, forza * (chiaro ? .55 : .30), chiaro ? "#EDEAE3" : "#FFFFFF");
+  }
+
   function nuovaLettera(){
     // una lettera su tre è quella che serve alla parola: se no non si compone mai
     const serve = letteraCercata();
     const dallaParola = serve && Math.random() < 0.34;
     const ch = dallaParola ? serve : ALFABETO.charAt(Math.floor(Math.random() * ALFABETO.length));
-    const comic = !dallaParola && Math.random() < 0.07;
+    // finché il refuso è sul foglio il contagio si vede anche nelle nuove
+    const comic = !dallaParola && Math.random() < (refuso ? 0.42 : 0.07);
     const f = comic ? COMIC : FACCE[Math.floor(Math.random() * FACCE.length)];
     const size = Math.round((30 + Math.random() * 9) * scala);
     ctx.font = fontCss(f, size);
@@ -952,7 +1023,105 @@
       aggiornaPassata();
       mostraToast(passata + "ª PASSATA", true);
       beep(520, .12, .04);
+      if (passata % REFUSO_OGNI === 0) setTimeout(chiamaRefuso, 900);
     }
+  }
+
+
+  /* ---------- IL REFUSO ----------
+     Ogni tre passate si rovescia proprio quello che in tipografia non deve
+     succedere: un Comic Sans, grosso come mezzo foglio, che scende piano e non
+     muore al primo colpo. Finché sta sul foglio **contagia**: le lettere che
+     cadono cominciano a comporsi anche loro in Comic Sans, sempre più spesso.
+     Se lo lasci arrivare in fondo il foglio è andato; se lo abbatti, tutte le
+     lettere infette bruciano insieme a lui e ti resti il sigillo.
+
+     È la battuta migliore del gioco: prima valeva ×3 punti e basta. */
+  const REFUSO_VITA = 5;
+  const REFUSO_OGNI = 3;      // una passata su tre
+  const REFUSO_LETTERE = "aeiougRQBS";
+
+  function chiamaRefuso(){
+    if (refuso || fase !== "play") return;
+    const size = Math.round(Math.min(W * 0.42, 132 * scala));
+    const ch = REFUSO_LETTERE.charAt(Math.floor(Math.random() * REFUSO_LETTERE.length));
+    ctx.font = fontCss(COMIC, size);
+    const w = ctx.measureText(ch).width;
+    refuso = {
+      ch: ch, size: size, w: w, h: size * 0.78,
+      x: W / 2, y: -size * 0.28,
+      vx: (Math.random() > .5 ? 1 : -1) * 0.055 * scala,
+      vy: velocitaCaduta() * 0.40,
+      vita: REFUSO_VITA, botta: 0, onda: 0,
+      prossimoContagio: performance.now() + 2200
+    };
+    mostraToast("IL REFUSO", true);
+    lampo = 1; lampoColore = ROSSO;
+    if (!reduceMotion) scossa = 7;
+    beep(150, .3, .06);
+    setTimeout(function(){ beep(110, .34, .055); }, 150);
+    setTimeout(function(){ beep(88, .4, .05); }, 320);
+  }
+
+  /* Il contagio: una lettera già in caduta si ricompone in Comic Sans. Si
+     sceglie la più in alto, così si vede cambiare faccia sotto gli occhi. */
+  function contagia(){
+    const sane = lettere.filter(function(L){ return !L.comic; });
+    if (!sane.length) return;
+    const L = sane.reduce(function(a, b){ return a.y < b.y ? a : b; });
+    L.comic = true; L.f = COMIC;
+    ctx.font = fontCss(L.f, L.size);
+    L.w = ctx.measureText(L.ch).width;
+    splash(L.x, L.y - L.h * .3, ROSSO, 6);
+    beep(190, .05, .02);
+  }
+
+  function colpisciRefuso(c){
+    refuso.vita--;
+    refuso.botta = 1;
+    refuso.y -= 16 * scala;
+    refuso.vy *= 1.16;
+    refuso.vx *= -1.1;
+    punti += 200 * passata;
+    splash(c.x, c.y, ROSSO, 16);
+    if (!reduceMotion) scossa = 6;
+    if (refuso.vita > 0){
+      mostraToast("ANCORA " + refuso.vita, true);
+      beep(240 - refuso.vita * 12, .1, .05);
+      aggiornaHud();
+      return;
+    }
+    // abbattuto: bruciano tutte le lettere infette
+    let infette = 0;
+    for (let i = lettere.length - 1; i >= 0; i--){
+      if (lettere[i].comic){
+        splash(lettere[i].x, lettere[i].y - lettere[i].h * .3, ROSSO, 10);
+        lettere.splice(i, 1);
+        infette++;
+        presi++;
+      }
+    }
+    punti += 2500 * passata + infette * 100 * passata;
+    splash(refuso.x, refuso.y - refuso.h * .35, ROSSO, 46);
+    refuso = null;
+    lampo = 1; lampoColore = ORO;
+    if (!reduceMotion) scossa = 12;
+    imprimiSigillo();
+    aggiornaHud();
+  }
+
+  /* Il sigillo si imprime dove è morto il refuso e resta lì per tutto il turno,
+     come un secco su un foglio vero. */
+  function imprimiSigillo(){
+    sigilli++;
+    const y = base - (110 + Math.random() * 90) * scala;
+    const x = (0.24 + Math.random() * 0.52) * W;
+    sigilloVivo = { x: x, y: y, t: 0 };
+    bolli.push({ x: x, y: y });
+    mostraToast("SIGILLO", true);
+    beep(420, .16, .05);
+    setTimeout(function(){ beep(160, .5, .07); }, 90);
+    rumore(.22, "lowpass", 900, .16);
   }
 
   function colpisci(L, c){
@@ -1150,7 +1319,7 @@
       // nuove lettere
       if (ora >= prossimaLettera){
         lettere.push(nuovaLettera());
-        prossimaLettera = ora + intervalloSpawn() * (0.75 + Math.random() * 0.5);
+        prossimaLettera = ora + intervalloSpawn() * (0.75 + Math.random() * 0.5) * (refuso ? 1.35 : 1);
       }
       // una bobina di munizioni ogni tanto
       if (ora >= prossimaBobina){
@@ -1166,6 +1335,28 @@
         if (L.y >= base - L.h * 0.25){
           lettere.splice(i, 1);
           arrivata(L);
+        }
+      }
+
+      // il refuso: scende piano, va a sbattere contro i margini e intanto contagia
+      if (refuso){
+        refuso.y += refuso.vy * dt;
+        refuso.x += refuso.vx * dt;
+        refuso.onda += dt * 0.004;
+        const mezzo = refuso.w / 2 + 10 * scala;
+        if (refuso.x < mezzo){ refuso.x = mezzo; refuso.vx = Math.abs(refuso.vx); }
+        if (refuso.x > W - mezzo){ refuso.x = W - mezzo; refuso.vx = -Math.abs(refuso.vx); }
+        if (refuso.botta > 0) refuso.botta = Math.max(0, refuso.botta - dt / 260);
+        if (ora >= refuso.prossimoContagio){
+          contagia();
+          refuso.prossimoContagio = ora + Math.max(1100, 2600 - passata * 110);
+        }
+        if (refuso.y >= base - refuso.h * 0.25){
+          timbri.push({ x: refuso.x, y: base, t: 0, ch: refuso.ch, f: COMIC,
+                        size: refuso.size, male: true });
+          refuso = null;
+          scappati++;
+          perdiBozza("IL REFUSO È ANDATO IN STAMPA");
         }
       }
 
@@ -1185,7 +1376,16 @@
         c.rot += c.vrot * dt;
         if (c.y < -30 || c.x < -30 || c.x > W + 30){ colpi.splice(i, 1); continue; }
 
-        // prima le bobine: sono più grosse e stanno davanti
+        // prima di tutto il refuso: è il più grosso e sta davanti
+        if (refuso &&
+            Math.abs(c.x - refuso.x) < refuso.w / 2 + 8 * scala &&
+            Math.abs(c.y - (refuso.y - refuso.h * 0.36)) < refuso.h * 0.62 + 8 * scala){
+          colpi.splice(i, 1);
+          colpisciRefuso(c);
+          continue;
+        }
+
+        // poi le bobine: sono più grosse delle lettere e stanno davanti
         let presa = -1;
         for (let j = 0; j < bobine.length; j++){
           const b = bobine[j];
@@ -1230,6 +1430,7 @@
     if (paroleLampo > 0) paroleLampo = Math.max(0, paroleLampo - dt / 900);
     if (scossa > 0) scossa = Math.max(0, scossa - dt * 0.03);
     if (lampo > 0) lampo = Math.max(0, lampo - dt / 300);
+    if (sigilloVivo){ sigilloVivo.t += dt; if (sigilloVivo.t > 1500) sigilloVivo = null; }
 
     disegna();
   }
@@ -1440,6 +1641,12 @@
     ctx.fillStyle = CARTA;
     ctx.fillRect(-12, -12, W + 24, H + 24);
 
+    // la filigrana: la stessa carta di tutti i giochi della sala
+    filigrana(ctx, W / 2, H * 0.42, H * 0.34, .045, "#17191D");
+
+    // i sigilli già impressi restano sul foglio per tutto il turno
+    for (const b of bolli) disegnaSigillo(ctx, b.x, b.y, 26 * scala, .5, false);
+
     // i margini della gabbia
     ctx.strokeStyle = "rgba(23,25,29,.10)";
     ctx.lineWidth = 1;
@@ -1486,6 +1693,42 @@
       const sway = Math.sin(L.onda) * 1.6 * scala;
       ctx.fillText(L.ch, L.x + sway, L.y);
       ctx.restore();
+    }
+
+    // IL REFUSO: enorme, storto, e con quante ne regge ancora scritto sotto
+    if (refuso){
+      const ondeggia = Math.sin(refuso.onda) * 0.05;
+      ctx.save();
+      ctx.translate(refuso.x, refuso.y);
+      ctx.rotate(ondeggia);
+      const s2 = 1 + refuso.botta * 0.10;
+      ctx.scale(s2, s2);
+      ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+      ctx.font = fontCss(COMIC, refuso.size);
+      // l'alone: fuori registro apposta, come una stampa venuta male
+      ctx.globalAlpha = .30;
+      ctx.fillStyle = "#00A0DF"; ctx.fillText(refuso.ch, -3 * scala, 2 * scala);
+      ctx.fillStyle = "#F5C400"; ctx.fillText(refuso.ch, 3 * scala, -2 * scala);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = refuso.botta > .4 ? "#FFFFFF" : ROSSO;
+      ctx.fillText(refuso.ch, 0, 0);
+      ctx.restore();
+      // quante ne regge ancora
+      const q = 9 * scala, gap = 5 * scala;
+      const largo = REFUSO_VITA * q + (REFUSO_VITA - 1) * gap;
+      for (let i = 0; i < REFUSO_VITA; i++){
+        const x = refuso.x - largo / 2 + i * (q + gap);
+        ctx.fillStyle = i < refuso.vita ? ROSSO : "rgba(23,25,29,.16)";
+        ctx.fillRect(x, refuso.y + 12 * scala, q, q * .5);
+      }
+    }
+
+    // il sigillo che si sta imprimendo
+    if (sigilloVivo){
+      const k = Math.min(1, sigilloVivo.t / 260);
+      const via = Math.max(0, 1 - Math.max(0, sigilloVivo.t - 900) / 600);
+      disegnaSigillo(ctx, sigilloVivo.x, sigilloVivo.y,
+                     (58 - 32 * k) * scala, via, false);
     }
 
     // le bobine di munizioni
@@ -1540,7 +1783,8 @@
   function riassunto(){
     const p = colpiSparati ? Math.round(presi / colpiSparati * 100) : 0;
     return passata + "ª passata · " + plur(parolePrese, "parola", "parole") +
-           " · " + presi + " lettere · " + p + "% a segno";
+           " · " + presi + " lettere · " + p + "% a segno" +
+           (sigilli ? " · " + plur(sigilli, "sigillo", "sigilli") : "");
   }
   function aggiornaHud(){
     elPunti.textContent = fmt(punti);
@@ -1548,6 +1792,10 @@
     elPresi.textContent = fmt(presi);
     if (elParoleN) elParoleN.textContent = fmt(parolePrese);
     elPrecisione.textContent = colpiSparati ? Math.round(presi / colpiSparati * 100) + "%" : "—";
+    if (rigaSigilli){
+      rigaSigilli.hidden = sigilli === 0;
+      if (elSigilli) elSigilli.textContent = String(sigilli);
+    }
     const molt = Math.min(5, 1 + Math.floor(combo / 4));
     elCombo.textContent = combo >= 4 ? "serie ×" + molt : "—";
     if (elMunizione){
@@ -1635,6 +1883,7 @@
     return "REFUSI · il foglio in macchina\n" +
            fmt(punti) + " punti — " + passata + "ª passata\n" +
            barre + "  " + p + "% a segno\n" +
+           (sigilli ? "🔒 ".replace("🔒", "") + plur(sigilli, "refuso battuto", "refusi battuti") + "\n" : "") +
            plur(parolePrese, "parola composta", "parole composte") + " · " +
            presi + " lettere abbattute · " + scappati + " andate in stampa\n" +
            (indiceParola ? "Ero a " + parola.slice(0, indiceParola) + "… di " + parola + "\n" : "") +
@@ -1878,6 +2127,7 @@
     const parti = [(r.level || 1) + "ª passata"];
     if (typeof d.parole === "number") parti.push(plur(d.parole, "parola", "parole"));
     if (typeof d.precisione === "number") parti.push(d.precisione + "% a segno");
+    if (d.sigilli) parti.push(plur(d.sigilli, "sigillo", "sigilli"));
     parti.push(dayToLabel(r.day));
     tag.textContent = parti.join(" · ");
     nm.appendChild(tag);
@@ -1972,7 +2222,8 @@
           gioco: GIOCO, day: dateKey(), name: nome, score: punti,
           lines: Math.min(100000, presi), quads: Math.min(25000, parolePrese),
           level: Math.max(1, Math.min(500, passata)),
-          dati: { presi: presi, parole: parolePrese, scappati: scappati, precisione: prec }
+          dati: { presi: presi, parole: parolePrese, scappati: scappati,
+                  precisione: prec, sigilli: sigilli }
         }
       });
       inviato = true;
@@ -2038,6 +2289,7 @@
   window.__refusi = {
     stato: function(){
       return { fase: fase, punti: punti, bozze: bozze, passata: passata,
+               sigilli: sigilli, refusoVivo: !!refuso, infette: lettere.filter(function(L){ return L.comic; }).length,
                lettere: lettere.length, colpi: colpi.length, bobine: bobine.length,
                presi: presi, scappati: scappati, combo: combo,
                parola: parola, indice: indiceParola, cerca: letteraCercata(),
@@ -2069,6 +2321,9 @@
     },
     svuota: function(){ lettere = []; colpi = []; bobine = []; },
     passataA: function(n){ passata = n; aggiornaPassata(); },
+    chiamaRefuso: chiamaRefuso,
+    refuso: function(){ return refuso ? { x: refuso.x, y: refuso.y, vita: refuso.vita } : null; },
+    battiRefuso: function(){ while (refuso) colpisciRefuso({ x: refuso.x, y: refuso.y }); },
     parolaA: function(w){ parola = w; indiceParola = 0; aggiornaParola(); },
     fine: finePartita,
     testo: testoRisultato,
