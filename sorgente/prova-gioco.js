@@ -133,7 +133,7 @@ const log = (...a) => console.log(...a);
       await new Promise(r => setTimeout(r, 45));
     }
     const s = R.stato();
-    return { spari: n, fase: s.fase, punti: s.punti, tiratura: s.tiratura, presi: s.presi };
+    return { spari: n, fase: s.fase, punti: s.punti, passata: s.passata, presi: s.presi };
   });
   log('8. partita automatica:', JSON.stringify(t8));
 
