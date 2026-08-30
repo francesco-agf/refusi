@@ -1,60 +1,69 @@
 # Refusi
 
-Lo sparatutto tipografico di **Arti Grafiche Fimognari**, dal 1950. Sei alla correzione di
-bozze: dalla macchina esce una composizione e tu hai l'ultima possibilità di fermare un
-errore prima che vada in tiratura.
+Lo sparatutto tipografico di **Arti Grafiche Fimognari**, dal 1950. Si è rovesciata la cassa:
+le lettere piovono sul foglio, e tu stai in fondo con una piccola macchina da stampa che spara
+biglietti da visita.
 
 Gioca: https://francesco-agf.github.io/refusi/
 
 ## La regola, che è una sola
 
-In alto c'è scritto qual è il **carattere in macchina**, con un saggio di come si presenta.
-Le lettere che cadono in quel carattere sono **giuste**: lasciale passare, vanno in stampa.
-Le lettere composte in un **carattere diverso** sono refusi: quelle vanno abbattute con un
-biglietto da visita.
+**Si spara a tutto.** Ogni lettera abbattuta fa punti. Ogni lettera che tocca la linea di base
+va in stampa così com'è e ti costa una **bozza**: ne hai cinque, finite quelle il turno è chiuso.
 
-Sparare a una lettera giusta è bucare la composizione: perdi una bozza. Lasciar passare un
-refuso è peggio — quello finisce stampato su diecimila copie. Anche lì perdi una bozza.
-Tre bozze bruciate e il turno è finito.
+## La parola da comporre
 
-## La difficoltà non è la velocità, è la somiglianza
+In cima al foglio c'è una parola del mestiere — *menabò*, *filigrana*, *quadricromia*. Le sue
+lettere cadono in mezzo alle altre: abbattile **nell'ordine giusto** e la parola si compone una
+lettera per volta. Quella che ti serve adesso è nel riquadro azzurro; sbagliare non costa niente.
 
-| Tiratura | In macchina | Il refuso |
+Composta la parola arriva un **premio da trenta secondi**, più mille punti per tiratura e una
+bozza indietro:
+
+- **Tiratura d'oro** — tre biglietti per colpo, cadenza quasi doppia, punti ×3
+- **Visto si stampi** — per trenta secondi le lettere che arrivano in fondo non ti costano niente
+
+## Le munizioni
+
+Ogni tanto scende una **bobina**: sparaci dentro e per venti secondi cambi quello che hai in canna.
+
+| | | |
 |---|---|---|
-| 1ª | Archivo | Comic Neue |
-| 2ª | Bodoni Moda | Archivo |
-| 3ª | Archivo | Anton |
-| 4ª | Bodoni Moda | Playfair Display |
-| 5ª | EB Garamond | Libre Baskerville |
-| 6ª | Inter | Roboto |
-| 7ª | EB Garamond | Cormorant Garamond |
+| **2** | Doppia stampa | due biglietti a ventaglio |
+| **3** | Tripla stampa | tre biglietti |
+| **»** | Rotativa | un biglietto solo, a raffica |
+| **4** | Quadricromia | biglietti a colori, punti ×2 |
 
-Si comincia con un Comic Sans in mezzo a un bastone, che si vede dall'altra parte della
-strada. Si finisce con due Garamond. A metà strada ci sono due neogrotesche in cui l'unica
-differenza onesta è la **R**, la **G** e la coda della **y**.
+## Il Comic Sans
+
+Ogni tanto una lettera cade composta in Comic Sans. Quello è il refuso vero: vale **tre volte**
+gli altri.
 
 ## Punteggio
 
-- **Refuso abbattuto** — 100 × tiratura, per il moltiplicatore della serie in corso
-- **Lettera giusta stampata** — 10 punti: hai avuto la pazienza di non sparare
-- **Serie** — ogni refuso di fila senza errori alza il moltiplicatore fino a ×5; a quattro
-  di fila la macchina va in quadricromia e i biglietti escono a colori, valgono una volta e mezzo
-- **Prova pulita** — bonus di fine tiratura se non hai bucato niente
+- Lettera abbattuta — 10 × tiratura, per il moltiplicatore della serie
+- Lettera della parola — +50 × tiratura
+- Parola composta — +1.000 × tiratura
+- Serie — ogni quattro lettere di fila senza perdere una bozza il moltiplicatore sale, fino a ×5
+
+Ogni venti lettere si sale di tiratura: cadono più fitte e più in fretta.
 
 ## Comandi
 
 Frecce per spostare la macchina, spazio per stampare un biglietto, P per la pausa.
-Da telefono: trascina il dito sul foglio per spostarti, tocca per sparare, oppure usa
-i tasti sotto al campo.
+Da telefono: trascina il dito sul foglio per spostarti, tocca per sparare, oppure usa i tasti
+sotto al campo.
 
 ## Tecnica
 
-Un solo file, `index.html`. Nessuna dipendenza a parte i caratteri da Google Fonts, caricati
-con il solo sottoinsieme delle lettere che servono. Il marchio è SVG in linea, la macchina e
-i biglietti sono disegnati su canvas, il rumore di sala è sintetizzato con la Web Audio API.
+Un solo file, `index.html`. Nessuna dipendenza a parte i caratteri da Google Fonts, caricati con
+il solo sottoinsieme delle lettere che servono. Il marchio è SVG in linea, la macchina, i
+biglietti e le bobine sono disegnati su canvas, il rumore di sala è sintetizzato con la Web Audio
+API. La classifica è quella condivisa della sala giochi.
 
 `SHARE_URL`, in cima allo script, è l'indirizzo che compare in fondo al risultato condiviso.
 
 ## Il gioco gemello
 
 **Baseline**, il tetris tipografico: https://francesco-agf.github.io/baseline/
+La sala giochi: https://francesco-agf.github.io/

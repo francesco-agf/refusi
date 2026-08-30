@@ -84,8 +84,11 @@
             text-transform:uppercase;color:var(--muted-2)}
 
   /* il carattere in macchina */
-  .macchina-nome{font-size:20px;font-weight:600;line-height:1.15;margin:0 0 6px}
-  .specimen-riga{font-size:34px;line-height:1.1;color:var(--paper);word-break:break-all}
+  .parola-riga{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.15;
+               margin:0;letter-spacing:.02em;word-break:break-all}
+  .parola-riga .let{color:rgba(110,128,145,.45)}
+  .parola-riga .let.presa{color:var(--paper)}
+  .parola-riga .let.cerca{color:var(--accent)}
   .macchina-nota{font-size:11px;line-height:1.55;color:var(--muted);margin:9px 0 0}
 
   .bozze{display:flex;gap:7px;margin-top:2px}
@@ -131,7 +134,8 @@
   .hs-v{font-family:var(--mono);font-size:21px;font-weight:600;line-height:1}
   .hs-sub{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;
           text-transform:uppercase;color:var(--muted-2);margin-top:3px}
-  .hs-font{font-size:17px;font-weight:600;text-align:center;line-height:1.1;flex:1;
+  .hs-font{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+           color:var(--muted);text-align:center;line-height:1.1;flex:1;
            overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .hs-btn{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
           color:var(--muted);background:transparent;border:1px solid var(--rule);
@@ -157,7 +161,10 @@
   .tool[aria-pressed="true"]{color:var(--accent);border-color:var(--accent)}
 
   /* ---------- classifica ---------- */
-  .board{max-width:1180px;margin:30px auto 0;background:var(--surface);
+  /* La classifica va indirizzata per id: `.board` è anche il contenitore del
+     campo di gioco, e questo riquadro gli passava addosso padding e bordo,
+     facendo sbordare il foglio fuori dallo schermo del telefono. */
+  #board{max-width:1180px;margin:30px auto 0;background:var(--surface);
          border:1px solid var(--rule-soft);border-radius:3px;padding:18px 20px}
   .board-head{display:flex;align-items:baseline;justify-content:space-between;
               gap:16px;flex-wrap:wrap;margin-bottom:12px}
@@ -246,7 +253,7 @@
   <header class="masthead">
     <h1 class="logotype">Refusi<span class="dot">.</span></h1>
     <div class="signature">
-      <span class="kicker">Correzione di bozze<b>Fimognari</b></span>
+      <span class="kicker">Sparatutto tipografico<b>Fimognari</b></span>
       <span class="avatar"><svg class="logo-f" role="img" aria-label="Fimognari" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 168"> <path fill="currentColor" d="M 105 22 C 106 24 107 26 107 28 C 107 29 106 31 106 32 L 105 34 C 104 36 101 38 98 38 C 96 38 95 37 94 37 C 93 37 92 36 92 35 C 91 35 91 34 90 33 C 90 33 90 32 90 32 L 90 31 C 90 29 90 27 92 25 C 93 23 94 21 94 19 C 94 15 92 13 90 12 C 87 11 85 11 82 11 C 76 11 71 13 67 18 C 63 23 61 31 61 41 L 61 52 C 61 54 61 57 60 59 C 60 61 59 62 59 63 C 59 64 58 65 57 66 C 55 67 55 68 54 68 C 54 68 53 68 51 69 C 51 69 51 69 51 69 L 85 69 L 85 70 L 61 70 L 61 151 L 61 145 C 61 146 61 146 61 146 C 61 146 61 147 62 147 C 62 148 62 148 63 149 C 63 149 64 150 65 150 C 66 150 67 151 69 151 C 75 151 78 151 79 151 L 79 152 L 31 152 L 31 151 L 38 151 C 40 151 41 150 42 150 C 43 150 44 149 44 149 C 45 149 45 148 45 148 C 46 147 46 147 46 146 C 46 146 46 146 46 146 L 46 70 L 31 70 L 31 69 C 34 69 36 69 38 68 C 40 67 41 66 42 65 C 43 64 44 63 45 61 C 45 60 46 59 46 58 C 46 57 46 56 46 54 C 46 53 46 52 46 52 L 46 52 L 46 52 C 46 50 47 48 47 46 C 47 43 48 40 49 37 C 49 35 50 32 51 31 C 52 29 53 27 55 26 C 58 21 62 18 67 14 C 72 11 78 10 83 10 C 87 10 91 10 94 12 C 97 13 99 14 101 16 C 103 18 104 20 105 22 "/> <path fill="currentColor" d="M 101 135 C 103 137 104 139 104 142 C 104 145 103 147 101 149 C 100 150 97 151 95 151 C 92 151 90 150 88 149 C 86 147 85 145 85 142 C 85 139 86 137 88 135 C 90 133 92 132 95 132 C 97 132 100 133 101 135 "/> </svg></span>
     </div>
   </header>
@@ -255,10 +262,10 @@
 
     <div class="rail rail-left">
       <div class="panel">
-        <div class="panel-label"><span>In macchina</span><span id="tirLabel">1ª tiratura</span></div>
-        <p class="macchina-nome" id="fontNome">—</p>
-        <p class="specimen-riga" id="specimen">Aa Rr Gg</p>
-        <p class="macchina-nota" id="fontNota"></p>
+        <div class="panel-label"><span>Da comporre</span><span id="tirLabel">1ª tiratura</span></div>
+        <p class="parola-riga" id="parola"></p>
+        <p class="macchina-nota">Abbatti le lettere <b>nell'ordine</b> e la parola si compone.
+        Quando la finisci arriva un premio da trenta secondi e ti torna una bozza.</p>
       </div>
       <div class="panel">
         <div class="panel-label"><span>Bozze</span><span id="bozzeN">3</span></div>
@@ -279,7 +286,7 @@
             <span class="hs-v" id="msPunti">0</span>
             <span class="hs-sub" id="msBozze">3 bozze</span>
           </div>
-          <div class="hs-font" id="msFont">—</div>
+          <div class="hs-font" id="msParola">—</div>
           <button class="hs-btn" id="pauseBtn" hidden>Pausa</button>
         </div>
       </div>
@@ -287,13 +294,13 @@
       <div class="board">
         <div class="chase"><canvas id="field" width="420" height="560"></canvas></div>
         <div class="overlay" id="overlay">
-          <p class="ov-kicker" id="ovKicker">Reparto correzione</p>
-          <h2 class="ov-title" id="ovTitle">Spara solo agli intrusi</h2>
+          <p class="ov-kicker" id="ovKicker">Sala macchine</p>
+          <h2 class="ov-title" id="ovTitle">Si è rovesciata la cassa</h2>
           <p class="ov-body" id="ovBody">
-            Dall'alto cade una composizione. Quasi tutte le lettere sono del carattere
-            <em>in macchina</em>: quelle vanno lasciate passare, sono giuste.
-            In mezzo però si è infilato un <em>refuso</em> — una lettera di un altro carattere.
-            Quello lo abbatti con un biglietto da visita.
+            Le lettere piovono sul foglio e <em>si spara a tutte</em>: quello che tocca la
+            linea di base va in stampa così com'è, e ti costa una bozza.
+            Intanto, in cima al foglio, c'è una parola da comporre: abbatti le sue lettere
+            <em>nell'ordine giusto</em> e ti guadagni trenta secondi di grazia.
           </p>
           <div class="startname" id="startName">
             <label for="nameInput">Come ti chiami?</label>
@@ -334,15 +341,16 @@
         <div class="panel-label"><span>Punti</span><span id="comboTag">—</span></div>
         <div class="readout big" id="punti">0</div>
         <div class="stat-row"><span class="stat-key">Record</span><span class="readout mid" id="record">0</span></div>
-        <div class="stat-row"><span class="stat-key">Refusi presi</span><span class="readout mid" id="presi">0</span></div>
-        <div class="stat-row"><span class="stat-key">Composte</span><span class="readout mid" id="composte">0</span></div>
-        <div class="stat-row"><span class="stat-key">Precisione</span><span class="readout mid" id="precisione">—</span></div>
+        <div class="stat-row"><span class="stat-key">Lettere</span><span class="readout mid" id="presi">0</span></div>
+        <div class="stat-row"><span class="stat-key">Parole</span><span class="readout mid" id="paroleN">0</span></div>
+        <div class="stat-row"><span class="stat-key">A segno</span><span class="readout mid" id="precisione">—</span></div>
       </div>
       <div class="panel">
-        <div class="panel-label"><span>Munizioni</span><span>∞</span></div>
-        <div class="stat-row"><span class="stat-key">Formato</span><span class="readout mid" id="munizione">Biglietto</span></div>
-        <p class="macchina-nota" style="margin-top:8px">La macchina spara quello che sta stampando:
-        biglietti da visita, e volantini quando prende il ritmo.</p>
+        <div class="panel-label"><span>In canna</span><span>∞</span></div>
+        <div class="stat-row"><span class="stat-key">Adesso</span><span class="readout sm" id="munizione">Biglietto</span></div>
+        <p class="macchina-nota" style="margin-top:8px">Ogni tanto scende una <b>bobina</b>:
+        sparaci dentro e per venti secondi cambi munizione — doppia, tripla, rotativa
+        o quadricromia.</p>
       </div>
     </div>
 
@@ -382,36 +390,58 @@
   <div class="modal-sheet">
     <button class="modal-close" id="rulesClose">Chiudi</button>
     <h2>Refusi</h2>
-    <p>Sei alla correzione di bozze. Dalla macchina esce una composizione e tu hai in mano
-    l'ultima possibilità di fermare un errore prima che vada in tiratura.</p>
+    <p>Si è rovesciata la cassa: le lettere piovono sul foglio. Tu stai in fondo con una
+    piccola macchina da stampa che spara biglietti da visita, e devi abbatterle tutte prima
+    che arrivino alla linea di base.</p>
 
     <h3>La regola, che è una sola</h3>
-    <p>In alto c'è scritto qual è il <b>carattere in macchina</b>, con un saggio di come si
-    presenta. Tutte le lettere che cadono in quel carattere sono <b>giuste</b>: lasciale
-    passare, vanno in stampa e ti fanno punti. Le lettere composte in un <b>carattere diverso</b>
-    sono refusi: quelle vanno abbattute.</p>
-    <p>Sparare a una lettera giusta è <b>bucare la composizione</b>: perdi una bozza.
-    Lasciar passare un refuso è peggio ancora — quello finisce stampato su diecimila copie.
-    Anche lì perdi una bozza. Con tre bozze bruciate il turno è finito.</p>
+    <p><b>Si spara a tutto.</b> Ogni lettera abbattuta fa punti. Ogni lettera che tocca la
+    linea di base va in stampa così com'è e ti costa una <b>bozza</b>: ne hai cinque, finite
+    quelle il turno è chiuso.</p>
 
-    <h3>La difficoltà</h3>
-    <p>Non è la velocità: è la <b>somiglianza</b>. Si comincia con un Comic Sans in mezzo a un
-    bastone, che si vede dall'altra parte della strada. Si finisce con due Garamond diversi.
-    A metà strada ci sono due neogrotesche in cui l'unica differenza onesta è la <b>R</b>,
-    la <b>G</b> e la coda della <b>y</b>.</p>
+    <h3>La parola da comporre</h3>
+    <p>In cima al foglio c'è una parola del mestiere — <em>menabò</em>, <em>filigrana</em>,
+    <em>quadricromia</em>. Le sue lettere cadono in mezzo alle altre: se le abbatti
+    <b>nell'ordine giusto</b> la parola si compone, una lettera per volta, e quella che ti
+    serve adesso è quella nel riquadro azzurro. Sbagliare non costa niente — la lettera fa
+    punti come tutte le altre, semplicemente non fa avanzare la parola.</p>
+    <p>Composta la parola, si accende tutta e arriva un <b>premio da trenta secondi</b>,
+    più mille punti per tiratura e una bozza che ti torna indietro. Il premio è uno dei due:</p>
+    <table class="tabella">
+      <tr><td><b>Tiratura d'oro</b></td><td>tre biglietti per colpo, cadenza quasi doppia e punti ×3</td></tr>
+      <tr><td><b>Visto si stampi</b></td><td>il capo reparto ti copre: per trenta secondi le lettere che arrivano in fondo non ti costano niente</td></tr>
+    </table>
 
-    <h3>La macchina</h3>
-    <p>Spara quello che sta stampando: <b>biglietti da visita</b> che girano su sé stessi.
-    Quando incateni quattro refusi di fila la macchina va in quadricromia e i biglietti
-    escono a colori, valgono di più. Un errore e torna al nero.</p>
+    <h3>Le munizioni</h3>
+    <p>Ogni tanto scende una <b>bobina</b>: sparaci dentro e per venti secondi cambi quello
+    che hai in canna. Ne resta attiva una per volta, e in basso a sinistra vedi quanto tempo
+    ti resta.</p>
+    <table class="tabella">
+      <tr><td><b>2</b> Doppia stampa</td><td>due biglietti a ogni colpo, aperti a ventaglio</td></tr>
+      <tr><td><b>3</b> Tripla stampa</td><td>tre biglietti, cadenza un filo più lenta</td></tr>
+      <tr><td><b>»</b> Rotativa</td><td>un biglietto solo, ma a raffica: da 210 a 95 millesimi fra un colpo e l'altro</td></tr>
+      <tr><td><b>4</b> Quadricromia</td><td>i biglietti escono a colori e valgono il doppio</td></tr>
+    </table>
+
+    <h3>Il Comic Sans</h3>
+    <p>Ogni tanto una lettera cade composta in <b>Comic Sans</b>. Quello è il refuso vero:
+    abbatterlo vale <b>tre volte</b> gli altri. Si riconosce a occhio, come in tipografia.</p>
+
+    <h3>Le facce</h3>
+    <p>Le lettere cadono ognuna nel suo carattere — Bodoni, Garamond, Baskerville, Anton,
+    Archivo, Playfair, Inter. Non serve più distinguerle per giocare: servono a far sembrare
+    il foglio uno specimen vero. Nella prima versione bisognava riconoscere il carattere
+    sbagliato per sapere a cosa sparare, ed era un esame, non un gioco.</p>
 
     <h3>Punteggio</h3>
     <table class="tabella">
-      <tr><td>Refuso abbattuto</td><td>100 × tiratura, moltiplicato per la serie in corso</td></tr>
-      <tr><td>Lettera giusta stampata</td><td>10 punti: hai avuto la pazienza di non sparare</td></tr>
-      <tr><td>Serie</td><td>Ogni refuso di fila senza errori alza il moltiplicatore, fino a ×5</td></tr>
-      <tr><td>Fine tiratura</td><td>Bonus di precisione se non hai bucato niente</td></tr>
+      <tr><td>Lettera abbattuta</td><td>10 × tiratura, per il moltiplicatore della serie</td></tr>
+      <tr><td>Lettera della parola</td><td>+50 × tiratura</td></tr>
+      <tr><td>Parola composta</td><td>+1.000 × tiratura, una bozza indietro e trenta secondi di premio</td></tr>
+      <tr><td>Comic Sans</td><td>×3</td></tr>
+      <tr><td>Serie</td><td>ogni quattro lettere di fila senza perdere una bozza il moltiplicatore sale, fino a ×5</td></tr>
     </table>
+    <p>Ogni venti lettere si sale di <b>tiratura</b>: cadono più fitte e più in fretta.</p>
 
     <h3>Comandi</h3>
     <table class="tabella">
@@ -423,7 +453,9 @@
 
     <h3>Perché esiste</h3>
     <p>È il secondo gioco di <b>Arti Grafiche Fimognari</b>, dopo <b>Baseline</b>, il tetris
-    tipografico. Stessa idea: un arcade che parla il mestiere invece di travestirlo.</p>
+    tipografico. Stessa idea: un arcade che parla il mestiere invece di travestirlo.
+    La classifica è la stessa per tutta la <b>sala giochi</b>: il nome che metti qui è quello
+    che usi anche su Baseline.</p>
   </div>
 </div>
 
@@ -454,35 +486,55 @@
                            "&gioco=eq." + GIOCO + "&order=score.desc&limit=500";
   const CHIAVE_NOME = "agf.giocatore";
 
-  /* Le coppie di caratteri, in ordine di crudeltà. Il primo è quello in
-     macchina, il secondo è il refuso. I pesi sono scelti perché le due
-     facce abbiano lo stesso colore sulla pagina: se una fosse più grassa
-     dell'altra si vincerebbe senza guardare le forme. `lettere` sono i
-     glifi in cui quella coppia si distingue davvero. */
-  const COPPIE = [
-    { a:["Archivo",600],     b:["Comic Neue",700],         lettere:"AGRQaegkty",
-      nota:"Un Comic Sans in mezzo a un bastone: si vede dall'altra parte della strada." },
-    { a:["Bodoni Moda",700], b:["Archivo",600],            lettere:"AEGMRaegnrs",
-      nota:"Grazie contro bastone. Guarda i terminali delle aste." },
-    { a:["Archivo",600],     b:["Anton",400],              lettere:"ABEGMRaegors",
-      nota:"Due bastoni: uno stretto e grasso, l'altro no." },
-    { a:["Bodoni Moda",700], b:["Playfair Display",700],   lettere:"AEGKQRaegkry",
-      nota:"Due didone. Cambia il contrasto, cambiano le grazie." },
-    { a:["EB Garamond",600], b:["Libre Baskerville",700],  lettere:"AEGMRWaegkw",
-      nota:"Due antiche. Adesso si comincia a ragionare." },
-    { a:["Inter",500],       b:["Roboto",500],             lettere:"RGQaegtyl1",
-      nota:"Due neogrotesche. La R, la G e la coda della y ti salvano." },
-    { a:["EB Garamond",600], b:["Cormorant Garamond",700], lettere:"AEGMRaegwy",
-      nota:"Due Garamond. Buona fortuna." }
+  /* Le facce che cadono. Non servono più a distinguere il giusto dallo
+     sbagliato — quella regola era troppo severa: erano tutte lettere nere e
+     capire se una «a» fosse Inter o Roboto non era un gioco, era un esame.
+     Adesso servono a far sembrare il foglio un vero specimen: ogni lettera
+     cade nel suo carattere, e si spara a tutte. */
+  const FACCE = [
+    ["Archivo", 600], ["Bodoni Moda", 700], ["EB Garamond", 600],
+    ["Libre Baskerville", 700], ["Playfair Display", 700], ["Anton", 400],
+    ["Inter", 500], ["Roboto", 500], ["Cormorant Garamond", 700]
   ];
+  const COMIC = ["Comic Neue", 700];   // il refuso vero: raro e vale il triplo
+
+  /* L'alfabeto italiano, ventuno lettere: niente J K W X Y, che in una
+     cassa tipografica italiana stanno nel cassetto delle lettere forestiere. */
+  const ALFABETO = "ABCDEFGHILMNOPQRSTUVZ";
+
+  /* Le parole da comporre, in ordine di lunghezza: si comincia corti. */
+  const PAROLE = [
+    "BOZZA", "PROTO", "CIANO", "PIOMBO", "GRAZIE", "RETINO", "LASTRA", "OFFSET",
+    "TORCHIO", "PUNZONE", "CROCINO", "MENABO", "PANTONE", "MAGENTA",
+    "ROTATIVA", "FUSTELLA", "CARTIERA", "CROMALIN", "LEGATORIA",
+    "FILIGRANA", "CARATTERE", "INTERLINEA", "INCHIOSTRO", "SERIGRAFIA",
+    "TIPOGRAFIA", "IMPOSIZIONE", "CORDONATURA", "QUADRICROMIA"
+  ];
+
+  /* Le munizioni. Cadono dall'alto dentro una bobina: le prendi sparandoci.
+     Ne resta attiva una per volta, con il suo tempo. */
+  const MUNIZIONI = {
+    doppia:   { nome:"DOPPIA STAMPA", segno:"2", durata:20000, colpi:2, cadenza:220, punti:1, colore:"#0aa0df" },
+    tripla:   { nome:"TRIPLA STAMPA", segno:"3", durata:20000, colpi:3, cadenza:250, punti:1, colore:"#e20c7a" },
+    rotativa: { nome:"ROTATIVA",      segno:"\u00BB", durata:16000, colpi:1, cadenza:95, punti:1, colore:"#f5c40a" },
+    quadri:   { nome:"QUADRICROMIA",  segno:"4", durata:20000, colpi:1, cadenza:190, punti:2, colore:"#17191D" }
+  };
+  const MUNIZIONE_KEYS = ["doppia", "tripla", "rotativa", "quadri"];
+
+  /* Il premio per aver composto la parola: trenta secondi di grazia. */
+  const PREMI = {
+    oro:   { nome:"TIRATURA D'ORO",  durata:30000, colpi:3, cadenza:130, punti:3, colore:"#C9A227" },
+    visto: { nome:"VISTO SI STAMPI", durata:30000, colpi:1, cadenza:170, punti:1, colore:"#d1006f" }
+  };
 
   const INCHIOSTRO = "#17191D";
   const CMYK = ["#00A0DF", "#E20C7A", "#F5C400", "#17191D"];
   const CARTA = "#FBFAF7";
   const ROSSO = "#C62F16";
 
-  const PER_TIRATURA = 14;      // lettere risolte prima di cambiare carattere
-  const BOZZE = 3;
+  const PER_TIRATURA = 20;      // lettere risolte prima di salire di tiratura
+  const BOZZE = 5;              // cinque bozze: si spara a tutto, qualcuna scappa
+  const ORO = "#C9A227";
 
   const reduceMotion = window.matchMedia &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -504,32 +556,33 @@
   const elPunti = document.getElementById("punti");
   const elRecord = document.getElementById("record");
   const elPresi = document.getElementById("presi");
-  const elComposte = document.getElementById("composte");
+  const elParoleN = document.getElementById("paroleN");
   const elPrecisione = document.getElementById("precisione");
   const elCombo = document.getElementById("comboTag");
   const elMunizione = document.getElementById("munizione");
-  const elFontNome = document.getElementById("fontNome");
-  const elFontNota = document.getElementById("fontNota");
-  const elSpecimen = document.getElementById("specimen");
+  const elParola = document.getElementById("parola");
   const elTir = document.getElementById("tirLabel");
   const elBozze = document.getElementById("bozze");
   const elBozzeN = document.getElementById("bozzeN");
   const msPunti = document.getElementById("msPunti");
   const msBozze = document.getElementById("msBozze");
-  const msFont = document.getElementById("msFont");
+  const msParola = document.getElementById("msParola");
 
   /* ---------- stato ---------- */
   let W = 420, H = 560, scala = 1, base = 480;
   let fase = "intro";
   let punti = 0, record = 0, bozze = BOZZE, tiratura = 1, risolte = 0;
-  let presi = 0, composte = 0, colpiSparati = 0, bucati = 0, scappati = 0;
-  let combo = 0, comboMax = 0, puliteDiFila = 0;
-  let lettere = [], colpi = [], schizzi = [], timbri = [];
-  let coppia = COPPIE[0];
-  let prossimaLettera = 0, ultimoSparo = -9999;
+  let presi = 0, composte = 0, colpiSparati = 0, scappati = 0, parolePrese = 0;
+  let combo = 0, comboMax = 0;
+  let lettere = [], colpi = [], schizzi = [], timbri = [], bobine = [];
+  let parola = "", presaFino = 0, indiceParola = 0;
+  let munizione = null, finMunizione = 0;   // munizione raccolta, con scadenza
+  let premio = null, finPremio = 0;         // premio della parola, con scadenza
+  let prossimaLettera = 0, prossimaBobina = 0, ultimoSparo = -9999;
   let macchina = { x: 210, vx: 0, rullo: 0 };
   let tastoSx = false, tastoDx = false;
   let scossa = 0, lampo = 0, lampoColore = ROSSO, toast = null;
+  let paroleLampo = 0;                      // la parola che si illumina
   let last = 0, raf = null;
 
   try { record = parseInt(localStorage.getItem("refusi.record") || "0", 10) || 0; } catch(e){}
@@ -537,10 +590,8 @@
   /* ---------- caratteri ---------- */
   function caricaCaratteri(){
     if (!document.fonts || !document.fonts.load) return;
-    for (const cp of COPPIE){
-      for (const f of [cp.a, cp.b]){
-        try { document.fonts.load(f[1] + ' 44px "' + f[0] + '"', "ABCEGMQRWaegkrstwy1"); } catch(e){}
-      }
+    for (const f of FACCE.concat([COMIC])){
+      try { document.fonts.load(f[1] + ' 44px "' + f[0] + '"', ALFABETO); } catch(e){}
     }
   }
   caricaCaratteri();
@@ -581,18 +632,29 @@
   if (window.visualViewport) window.visualViewport.addEventListener("resize", resize);
 
   /* ---------- partita ---------- */
-  function cambiaCoppia(){
-    coppia = COPPIE[Math.min(tiratura - 1, COPPIE.length - 1)];
-    elFontNome.textContent = coppia.a[0];
-    elFontNota.textContent = coppia.nota;
-    elSpecimen.style.fontFamily = '"' + coppia.a[0] + '", Georgia, serif';
-    elSpecimen.style.fontWeight = coppia.a[1];
-    elSpecimen.textContent = "Aa Rr Gg";
-    msFont.textContent = coppia.a[0];
-    msFont.style.fontFamily = '"' + coppia.a[0] + '", Georgia, serif';
-    msFont.style.fontWeight = coppia.a[1];
-    elTir.textContent = tiratura + "ª tiratura";
-    elMunizione.textContent = tiratura >= 4 ? "Volantino" : "Biglietto";
+
+  /* La parola da comporre. Le lettere vanno prese in ordine: quando abbatti
+     quella che serve, si accende nella riga in alto. Composta tutta la parola
+     arriva il premio — e ti torna una bozza. */
+  function nuovaParola(){
+    const dispon = PAROLE.filter(function(w){ return w !== parola; });
+    // le prime tirature pescano fra le parole corte, poi si apre tutto
+    const finestra = Math.min(dispon.length, 6 + tiratura * 3);
+    parola = dispon[Math.floor(Math.random() * finestra)];
+    indiceParola = 0;
+    aggiornaParola();
+  }
+  function letteraCercata(){ return parola.charAt(indiceParola) || ""; }
+  function aggiornaParola(){
+    if (!elParola) return;
+    elParola.innerHTML = "";
+    for (let i = 0; i < parola.length; i++){
+      const sp = document.createElement("span");
+      sp.className = "let" + (i < indiceParola ? " presa" : (i === indiceParola ? " cerca" : ""));
+      sp.textContent = parola.charAt(i);
+      elParola.appendChild(sp);
+    }
+    // sul telefono la parola si legge già sul foglio: nella striscia va la tiratura
   }
 
   function comincia(){
@@ -606,13 +668,18 @@
     ovScore.hidden = true; ovMeta.hidden = true; copyBtn.hidden = true;
     ovBody.hidden = false; ovTitle.hidden = false;
     punti = 0; bozze = BOZZE; tiratura = 1; risolte = 0;
-    presi = 0; composte = 0; colpiSparati = 0; bucati = 0; scappati = 0;
-    combo = 0; comboMax = 0; puliteDiFila = 0;
-    lettere = []; colpi = []; schizzi = []; timbri = [];
+    presi = 0; colpiSparati = 0; scappati = 0; parolePrese = 0;
+    combo = 0; comboMax = 0;
+    lettere = []; colpi = []; schizzi = []; timbri = []; bobine = [];
+    munizione = null; premio = null; finMunizione = 0; finPremio = 0;
+    paroleLampo = 0;
     macchina.x = W / 2; macchina.vx = 0;
     prossimaLettera = performance.now() + 700;
+    prossimaBobina = performance.now() + 14000;
     fase = "play";
-    cambiaCoppia();
+    parola = "";
+    nuovaParola();
+    aggiornaTiratura();
     overlay.hidden = true;
     aggiornaHud();
     last = performance.now();
@@ -620,34 +687,36 @@
     suonaMotore();
   }
 
-  /* Le lettere restano in aria più a lungo, quindi devono anche arrivare più
-     rade: se no il foglio si riempie e non si distingue più niente. */
-  function intervalloSpawn(){
-    return Math.max(560, 1400 - (tiratura - 1) * 110);
+  function aggiornaTiratura(){
+    if (elTir) elTir.textContent = tiratura + "ª tiratura";
+    if (msParola) msParola.textContent = tiratura + "ª tiratura";
   }
-  /* Il tempo di caduta è tarato sull'altezza del foglio, non su un numero
-     a caso: alla prima tiratura una lettera ci mette circa cinque secondi
-     ad arrivare alla linea di base, all'ultima poco meno di tre. La
-     difficoltà del gioco non è la velocità — è la somiglianza fra i due
-     caratteri: se cadessero troppo in fretta non ci sarebbe il tempo di
-     guardarle, che è tutto quello che c'è da fare. Alla prima tiratura una
-     lettera impiega 7,2 secondi ad arrivare in fondo, all'ultima 4,2. */
+
+  function intervalloSpawn(){
+    return Math.max(560, 1300 - (tiratura - 1) * 110);
+  }
+  /* Il tempo di caduta è tarato sull'altezza del foglio: alla prima tiratura
+     una lettera impiega 6,5 secondi ad arrivare in fondo, all'ultima 3,6.
+     Adesso si spara a tutto, quindi conta quanto tempo hai per raggiungerla,
+     non quanto per riconoscerla. */
   function velocitaCaduta(){
-    const secondi = Math.max(4.2, 7.2 - (tiratura - 1) * 0.5);
+    const secondi = Math.max(3.6, 6.5 - (tiratura - 1) * 0.42);
     return base / (secondi * 1000);
   }
 
   function nuovaLettera(){
-    const pool = coppia.lettere;
-    const ch = pool.charAt(Math.floor(Math.random() * pool.length));
-    const refuso = Math.random() < 0.34;
-    const f = refuso ? coppia.b : coppia.a;
-    const size = Math.round((30 + Math.random() * 8) * scala);
+    // una lettera su tre è quella che serve alla parola: se no non si compone mai
+    const serve = letteraCercata();
+    const dallaParola = serve && Math.random() < 0.34;
+    const ch = dallaParola ? serve : ALFABETO.charAt(Math.floor(Math.random() * ALFABETO.length));
+    const comic = !dallaParola && Math.random() < 0.07;
+    const f = comic ? COMIC : FACCE[Math.floor(Math.random() * FACCE.length)];
+    const size = Math.round((30 + Math.random() * 9) * scala);
     ctx.font = fontCss(f, size);
     const w = ctx.measureText(ch).width;
     const margine = 16 * scala;
     return {
-      ch: ch, refuso: refuso, f: f, size: size,
+      ch: ch, f: f, size: size, comic: comic,
       x: margine + w / 2 + Math.random() * Math.max(1, W - 2 * margine - w),
       y: -size,
       vy: velocitaCaduta() * (0.85 + Math.random() * 0.3),
@@ -656,23 +725,49 @@
     };
   }
 
+  /* La bobina di munizioni: cade più piano delle lettere e la si prende
+     sparandoci dentro. */
+  function nuovaBobina(){
+    const k = MUNIZIONE_KEYS[Math.floor(Math.random() * MUNIZIONE_KEYS.length)];
+    const r = 17 * scala;
+    return { k: k, x: r + 8 * scala + Math.random() * Math.max(1, W - 2 * r - 16 * scala),
+             y: -r * 2, vy: velocitaCaduta() * 0.55, r: r, giro: 0 };
+  }
+
+  /* Quanti colpi e con che cadenza: comanda il premio, se c'è, altrimenti la
+     munizione raccolta, altrimenti la macchina nuda. */
+  function assetto(){
+    const p = premio && PREMI[premio];
+    const m = munizione && MUNIZIONI[munizione];
+    if (p && premio === "oro") return { colpi: p.colpi, cadenza: p.cadenza, punti: p.punti, colore: ORO, quad: false, oro: true };
+    const base2 = { colpi: 1, cadenza: 210, punti: 1, colore: CARTA, quad: false, oro: false };
+    if (m) return { colpi: m.colpi, cadenza: m.cadenza, punti: m.punti,
+                    colore: m.colore, quad: munizione === "quadri", oro: false };
+    return base2;
+  }
+
   function spara(){
     if (fase !== "play") return;
     const ora = performance.now();
-    if (ora - ultimoSparo < 210) return;
+    const a = assetto();
+    if (ora - ultimoSparo < a.cadenza) return;
     ultimoSparo = ora;
     colpiSparati++;
-    const quad = combo >= 4;
-    colpi.push({
-      x: macchina.x, y: base - 40 * scala,
-      vy: -0.62 * scala, rot: 0,
-      vrot: (Math.random() > .5 ? 1 : -1) * 0.011,
-      colore: quad ? CMYK[Math.floor(Math.random() * 4)] : CARTA,
-      quad: quad,
-      volantino: tiratura >= 4
-    });
+    const n = a.colpi;
+    for (let i = 0; i < n; i++){
+      const scarto = n === 1 ? 0 : (i - (n - 1) / 2) * 13 * scala;
+      colpi.push({
+        x: macchina.x + scarto, y: base - 40 * scala,
+        vx: n === 1 ? 0 : scarto * 0.0016,
+        vy: -0.64 * scala, rot: 0,
+        vrot: (Math.random() > .5 ? 1 : -1) * 0.011,
+        colore: a.oro ? ORO : (a.quad ? CMYK[Math.floor(Math.random() * 4)] : CARTA),
+        speciale: a.oro || a.quad,
+        volantino: tiratura >= 4
+      });
+    }
     macchina.rullo += 0.9;
-    beep(quad ? 520 : 320, .05, .03);
+    beep(a.oro ? 700 : (a.quad ? 520 : 320), .05, .03);
     rumore(.045, "highpass", 2600, .12);
   }
 
@@ -688,62 +783,86 @@
     if (bozze <= 0) finePartita();
   }
 
-  function risolta(){
+  function attivaMunizione(k){
+    munizione = k;
+    finMunizione = performance.now() + MUNIZIONI[k].durata;
+    mostraToast(MUNIZIONI[k].nome, true);
+    beep(880, .09, .04);
+    setTimeout(function(){ beep(1180, .09, .035); }, 70);
+    setTimeout(function(){ beep(1480, .1, .03); }, 140);
+    aggiornaHud();
+  }
+
+  function parolaFatta(){
+    parolePrese++;
+    const k = Math.random() < 0.5 ? "oro" : "visto";
+    premio = k;
+    finPremio = performance.now() + PREMI[k].durata;
+    punti += 1000 * tiratura;
+    if (bozze < BOZZE) bozze++;
+    paroleLampo = 1;
+    lampo = 1; lampoColore = k === "oro" ? ORO : "#0aa0df";
+    mostraToast(PREMI[k].nome, true);
+    beep(660, .12, .045);
+    setTimeout(function(){ beep(880, .12, .045); }, 110);
+    setTimeout(function(){ beep(1320, .22, .05); }, 220);
+    nuovaParola();
+    aggiornaHud();
+  }
+
+  function avanza(){
     risolte++;
     if (risolte >= PER_TIRATURA){
       risolte = 0;
-      // bonus se la tiratura è passata senza bucare niente
-      if (puliteDiFila === 0){
-        punti += 500 * tiratura;
-        mostraToast("PROVA PULITA +" + (500 * tiratura), true);
-        beep(880, .16, .045);
-        setTimeout(function(){ beep(1170, .14, .04); }, 100);
-      }
-      puliteDiFila = 0;
       tiratura++;
-      cambiaCoppia();
-      if (tiratura <= COPPIE.length){
-        setTimeout(function(){ mostraToast("IN MACCHINA: " + coppia.a[0].toUpperCase(), true); }, 700);
-      }
+      aggiornaTiratura();
+      mostraToast(tiratura + "ª TIRATURA", true);
+      beep(520, .12, .04);
     }
   }
 
   function colpisci(L, c){
-    if (L.refuso){
-      combo++;
-      if (combo > comboMax) comboMax = combo;
-      const molt = Math.min(5, 1 + Math.floor(combo / 2));
-      let g = 100 * tiratura * molt;
-      if (c.quad) g = Math.round(g * 1.5);
-      punti += g;
-      presi++;
-      splash(L.x, L.y, c.quad ? c.colore : "#E20C7A", 16);
-      if (combo === 4) mostraToast("QUADRICROMIA", true);
-      else if (molt > 1) mostraToast("SERIE ×" + molt, false);
-      else mostraToast("REFUSO", false);
-      beep(660 + Math.min(6, combo) * 40, .09, .035);
-      risolta();
-    } else {
-      bucati++; puliteDiFila++;
-      splash(L.x, L.y, ROSSO, 20);
-      perdiBozza("BUCO IN COMPOSIZIONE");
-      risolta();
+    presi++;
+    combo++;
+    if (combo > comboMax) comboMax = combo;
+    const a = assetto();
+    const molt = Math.min(5, 1 + Math.floor(combo / 4));
+    let g = 10 * tiratura * molt * a.punti;
+    if (L.comic) g *= 3;
+    let parolaAvanzata = false;
+    if (L.ch === letteraCercata()){
+      indiceParola++;
+      g += 50 * tiratura;
+      parolaAvanzata = true;
+      aggiornaParola();
     }
+    punti += g;
+    splash(L.x, L.y, L.comic ? ROSSO : (a.oro ? ORO : (c.speciale ? c.colore : "#E20C7A")), L.comic ? 20 : 12);
+    if (parolaAvanzata && indiceParola >= parola.length) parolaFatta();
+    else if (parolaAvanzata){
+      mostraToast(parola.slice(0, indiceParola), false);
+      beep(760 + indiceParola * 30, .07, .03);
+    } else if (L.comic){
+      mostraToast("COMIC SANS ×3", true);
+      beep(300, .12, .045);
+    } else {
+      beep(520 + Math.min(8, combo) * 25, .04, .022);
+    }
+    avanza();
     aggiornaHud();
   }
 
   function arrivata(L){
-    if (L.refuso){
-      scappati++; puliteDiFila++;
-      timbri.push({ x: L.x, y: base, t: 0, ch: L.ch, f: L.f, size: L.size, male: true });
-      perdiBozza("È ANDATO IN STAMPA");
-    } else {
-      punti += 10; composte++;
-      timbri.push({ x: L.x, y: base, t: 0, ch: L.ch, f: L.f, size: L.size, male: false });
-      beep(240, .03, .014);
-      risolta();
+    timbri.push({ x: L.x, y: base, t: 0, ch: L.ch, f: L.f, size: L.size, male: premio !== "visto" });
+    if (premio === "visto"){
+      // il capo reparto ti copre: la lettera va in stampa e non costa niente
+      punti += 5;
+      beep(200, .03, .012);
       aggiornaHud();
+      return;
     }
+    scappati++;
+    perdiBozza("È ANDATA IN STAMPA");
   }
 
   function finePartita(){
@@ -755,16 +874,18 @@
     fermaMotore();
     beep(70, .5, .06);
     ovKicker.textContent = "Turno finito";
-    ovTitle.textContent = scappati > 0 ? "È andato in stampa" : "Composizione bucata";
+    ovTitle.textContent = "Il foglio è andato in macchina";
     ovTitle.hidden = false;
     ovBody.hidden = true;
     ovScore.hidden = false; ovScore.textContent = fmt(punti);
     ovMeta.hidden = false; ovMeta.textContent = riassunto();
     rivelazione.hidden = false;
-    rivelazione.innerHTML = "Il refuso era <b style=\"font-family:'" + coppia.b[0] +
-      "',Georgia,serif;font-weight:" + coppia.b[1] + "\">" + coppia.b[0] +
-      "</b> in mezzo a <b style=\"font-family:'" + coppia.a[0] +
-      "',Georgia,serif;font-weight:" + coppia.a[1] + "\">" + coppia.a[0] + "</b>.";
+    rivelazione.innerHTML = parolePrese
+      ? "Hai composto <b>" + parolePrese + "</b> " +
+        (parolePrese === 1 ? "parola" : "parole") + ". Ti eri fermato su <b>" +
+        parola.slice(0, indiceParola) + "</b>" + (indiceParola ? "…" : "") + " di <b>" + parola + "</b>."
+      : "Non hai composto nessuna parola. Eri arrivato a <b>" +
+        (indiceParola ? parola.slice(0, indiceParola) + "…" : "zero lettere") + "</b> di <b>" + parola + "</b>.";
     startBtn.textContent = "Un altro turno";
     copyBtn.hidden = false; copyBtn.textContent = "Copia risultato";
     startName.hidden = true;
@@ -779,7 +900,7 @@
       fermaMotore();
       ovKicker.textContent = "In pausa";
       ovTitle.textContent = "Macchina ferma"; ovTitle.hidden = false;
-      ovBody.textContent = "Premi P o il pulsante per riprendere la correzione.";
+      ovBody.textContent = "Premi P o il pulsante per riprendere.";
       ovBody.hidden = false;
       ovScore.hidden = true; ovMeta.hidden = true; rivelazione.hidden = true;
       copyBtn.hidden = true; signup.hidden = true; startName.hidden = true;
@@ -788,7 +909,11 @@
     } else if (fase === "pause"){
       fase = "play";
       overlay.hidden = true;
-      last = performance.now();
+      // i cronometri non devono scorrere mentre la macchina è ferma
+      const ora = performance.now();
+      if (munizione && finMunizione < ora) munizione = null;
+      if (premio && finPremio < ora) premio = null;
+      last = ora;
       suonaMotore();
     }
     sincronizzaPausa();
@@ -822,7 +947,7 @@
       if (tastoSx) macchina.vx -= acc * dt;
       if (tastoDx) macchina.vx += acc * dt;
       if (!tastoSx && !tastoDx) macchina.vx *= Math.pow(0.86, dt / 16);
-      const vmax = 0.62 * scala;
+      const vmax = 0.80 * scala;   // si spara a tutto: bisogna arrivarci
       macchina.vx = Math.max(-vmax, Math.min(vmax, macchina.vx));
       macchina.x += macchina.vx * dt;
       const bordo = 34 * scala;
@@ -830,10 +955,19 @@
       if (macchina.x > W - bordo){ macchina.x = W - bordo; macchina.vx = 0; }
       macchina.rullo += Math.abs(macchina.vx) * dt * 0.02 + dt * 0.0016;
 
+      // i cronometri di munizione e premio
+      if (munizione && ora > finMunizione){ munizione = null; mostraToast("MUNIZIONE FINITA", false); aggiornaHud(); }
+      if (premio && ora > finPremio){ premio = null; mostraToast("FINITO IL PREMIO", false); aggiornaHud(); }
+
       // nuove lettere
       if (ora >= prossimaLettera){
         lettere.push(nuovaLettera());
         prossimaLettera = ora + intervalloSpawn() * (0.75 + Math.random() * 0.5);
+      }
+      // una bobina di munizioni ogni tanto
+      if (ora >= prossimaBobina){
+        bobine.push(nuovaBobina());
+        prossimaBobina = ora + 15000 + Math.random() * 9000;
       }
 
       // caduta
@@ -847,12 +981,37 @@
         }
       }
 
+      // le bobine scendono; se toccano terra si perdono, ma non costano nulla
+      for (let i = bobine.length - 1; i >= 0; i--){
+        const b = bobine[i];
+        b.y += b.vy * dt;
+        b.giro += dt * 0.004;
+        if (b.y - b.r > base) bobine.splice(i, 1);
+      }
+
       // colpi
       for (let i = colpi.length - 1; i >= 0; i--){
         const c = colpi[i];
         c.y += c.vy * dt;
+        c.x += (c.vx || 0) * dt;
         c.rot += c.vrot * dt;
-        if (c.y < -30){ colpi.splice(i, 1); continue; }
+        if (c.y < -30 || c.x < -30 || c.x > W + 30){ colpi.splice(i, 1); continue; }
+
+        // prima le bobine: sono più grosse e stanno davanti
+        let presa = -1;
+        for (let j = 0; j < bobine.length; j++){
+          const b = bobine[j];
+          if (Math.abs(c.x - b.x) < b.r + 8 * scala && Math.abs(c.y - b.y) < b.r + 8 * scala){ presa = j; break; }
+        }
+        if (presa >= 0){
+          const b = bobine[presa];
+          splash(b.x, b.y, MUNIZIONI[b.k].colore, 18);
+          bobine.splice(presa, 1);
+          colpi.splice(i, 1);
+          attivaMunizione(b.k);
+          continue;
+        }
+
         let colpito = -1;
         for (let j = 0; j < lettere.length; j++){
           const L = lettere[j];
@@ -880,6 +1039,7 @@
       if (timbri[i].t > 1400) timbri.splice(i, 1);
     }
     if (toast){ toast.t += dt; if (toast.t > 1250) toast = null; }
+    if (paroleLampo > 0) paroleLampo = Math.max(0, paroleLampo - dt / 900);
     if (scossa > 0) scossa = Math.max(0, scossa - dt * 0.03);
     if (lampo > 0) lampo = Math.max(0, lampo - dt / 300);
 
@@ -993,6 +1153,95 @@
     c.closePath();
   }
 
+  /* La parola in cima al foglio: è la composizione che stai mettendo insieme
+     mentre spari. Composta in Bodoni, come un titolo su una prova di stampa. */
+  function disegnaParola(c){
+    if (!parola) return;
+    // il passo deve tenere anche una M di Bodoni: se no le lettere si toccano
+    const passoRel = 1.02;
+    const fs = Math.max(13, Math.min(30, Math.round((W - 44 * scala) / (parola.length * passoRel))));
+    const y = 42 * scala;
+    c.save();
+    c.font = '700 ' + fs + 'px "Bodoni Moda", Georgia, serif';
+    c.textAlign = "center"; c.textBaseline = "middle";
+    const passo = fs * passoRel;
+    const largo = passo * parola.length;
+    const x0 = W / 2 - largo / 2 + passo / 2;
+
+    c.font = '500 ' + Math.round(8.5 * scala) + 'px "IBM Plex Mono", monospace';
+    c.fillStyle = "rgba(23,25,29,.38)";
+    c.textAlign = "left";
+    c.fillText("DA COMPORRE", 20 * scala, 15 * scala);
+    c.textAlign = "center";
+
+    for (let i = 0; i < parola.length; i++){
+      const x = x0 + i * passo;
+      const presa = i < indiceParola;
+      const cerca = i === indiceParola;
+      if (paroleLampo > 0 && presa){
+        c.fillStyle = "rgba(201,162,39," + (paroleLampo * .35).toFixed(3) + ")";
+        c.fillRect(x - passo / 2 + 1, y - fs * .72, passo - 2, fs * 1.44);
+      }
+      if (cerca){
+        c.strokeStyle = "rgba(10,111,184,.85)";
+        c.lineWidth = 1.4;
+        c.strokeRect(x - passo / 2 + 1.5, y - fs * .72, passo - 3, fs * 1.44);
+      }
+      c.font = '700 ' + fs + 'px "Bodoni Moda", Georgia, serif';
+      c.fillStyle = presa ? INCHIOSTRO : (cerca ? "rgba(10,111,184,.9)" : "rgba(23,25,29,.22)");
+      c.fillText(parola.charAt(i), x, y);
+    }
+    c.restore();
+  }
+
+  /* La bobina di munizioni: un rotolo di carta con sopra il segno. */
+  function disegnaBobina(c, b){
+    const m = MUNIZIONI[b.k];
+    c.save();
+    c.translate(b.x, b.y);
+    c.rotate(Math.sin(b.giro) * 0.12);
+    c.fillStyle = "rgba(23,25,29,.14)";
+    c.beginPath(); c.arc(1.5, 2, b.r, 0, Math.PI * 2); c.fill();
+    c.fillStyle = CARTA;
+    c.beginPath(); c.arc(0, 0, b.r, 0, Math.PI * 2); c.fill();
+    c.strokeStyle = m.colore; c.lineWidth = Math.max(2, 2.6 * scala);
+    c.beginPath(); c.arc(0, 0, b.r - 1.5, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = "rgba(23,25,29,.18)"; c.lineWidth = 1;
+    c.beginPath(); c.arc(0, 0, b.r * .58, 0, Math.PI * 2); c.stroke();
+    c.fillStyle = m.colore;
+    c.font = '700 ' + Math.round(b.r * 1.15) + 'px "Archivo", Helvetica, sans-serif';
+    c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillText(m.segno, 0, b.r * .04);
+    c.restore();
+  }
+
+  /* Che cosa hai in canna, e per quanto ancora. */
+  function disegnaAssetto(c){
+    const ora = performance.now();
+    const righe = [];
+    if (premio) righe.push({ n: PREMI[premio].nome, q: Math.max(0, (finPremio - ora) / PREMI[premio].durata),
+                             col: premio === "oro" ? ORO : "#0a6fb8" });
+    if (munizione) righe.push({ n: MUNIZIONI[munizione].nome, q: Math.max(0, (finMunizione - ora) / MUNIZIONI[munizione].durata),
+                                col: MUNIZIONI[munizione].colore });
+    if (!righe.length) return;
+    c.save();
+    const fs = Math.round(9 * scala);
+    c.font = '600 ' + fs + 'px "IBM Plex Mono", monospace';
+    c.textAlign = "left"; c.textBaseline = "middle";
+    let y = base + 14 * scala;
+    for (const r of righe){
+      const larg = Math.max(96 * scala, c.measureText(r.n).width + 16 * scala);
+      c.fillStyle = "rgba(252,251,247,.9)";
+      c.fillRect(8 * scala, y - fs, larg, fs * 2.4);
+      c.fillStyle = r.col;
+      c.fillRect(8 * scala, y + fs * .8, larg * r.q, 2.5 * scala);
+      c.fillStyle = r.col;
+      c.fillText(r.n, 14 * scala, y);
+      y += fs * 3;
+    }
+    c.restore();
+  }
+
   function disegna(){
     const dpr = window.devicePixelRatio || 1;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1024,6 +1273,10 @@
     ctx.textAlign = "right"; ctx.textBaseline = "bottom";
     ctx.fillText("LINEA DI BASE", W - 6 * scala, base - 4 * scala);
 
+    // LA PAROLA DA COMPORRE, in cima al foglio: le lettere prese sono nere,
+    // quelle che mancano grigie, e quella che serve adesso ha il suo riquadro.
+    disegnaParola(ctx);
+
     // quello che è già stato stampato resta impresso sotto la linea
     for (const t of timbri){
       const k = Math.min(1, t.t / 1400);
@@ -1047,6 +1300,9 @@
       ctx.restore();
     }
 
+    // le bobine di munizioni
+    for (const b of bobine) disegnaBobina(ctx, b);
+
     // i biglietti in volo
     for (const b of colpi) cartaBiglietto(ctx, b);
 
@@ -1061,9 +1317,14 @@
     // la macchina
     if (fase !== "intro") disegnaMacchina(ctx, macchina.x, base);
 
-    // il lampo rosso dell'errore
+    // quello che è attivo adesso, in basso a sinistra
+    disegnaAssetto(ctx);
+
+    // il lampo dell'errore, o quello d'oro della parola composta
     if (lampo > 0){
-      ctx.fillStyle = "rgba(198,47,22," + (lampo * .17).toFixed(3) + ")";
+      const c3 = lampoColore === ROSSO ? "198,47,22"
+               : (lampoColore === ORO ? "201,162,39" : "10,111,184");
+      ctx.fillStyle = "rgba(" + c3 + "," + (lampo * .17).toFixed(3) + ")";
       ctx.fillRect(0, 0, W, H);
     }
 
@@ -1090,16 +1351,21 @@
   function fmt(n){ return Math.round(n).toLocaleString("it-IT"); }
   function riassunto(){
     const p = colpiSparati ? Math.round(presi / colpiSparati * 100) : 0;
-    return tiratura + "ª tiratura · " + presi + " refusi · " + p + "% di precisione";
+    return tiratura + "ª tiratura · " + plur(parolePrese, "parola", "parole") +
+           " · " + presi + " lettere · " + p + "% a segno";
   }
   function aggiornaHud(){
     elPunti.textContent = fmt(punti);
     elRecord.textContent = fmt(Math.max(record, punti));
     elPresi.textContent = fmt(presi);
-    elComposte.textContent = fmt(composte);
+    if (elParoleN) elParoleN.textContent = fmt(parolePrese);
     elPrecisione.textContent = colpiSparati ? Math.round(presi / colpiSparati * 100) + "%" : "—";
-    const molt = Math.min(5, 1 + Math.floor(combo / 2));
-    elCombo.textContent = combo >= 2 ? "serie ×" + molt : "—";
+    const molt = Math.min(5, 1 + Math.floor(combo / 4));
+    elCombo.textContent = combo >= 4 ? "serie ×" + molt : "—";
+    if (elMunizione){
+      elMunizione.textContent = premio ? PREMI[premio].nome
+                              : (munizione ? MUNIZIONI[munizione].nome : "Biglietto");
+    }
     msPunti.textContent = fmt(punti);
     msBozze.textContent = bozze + (bozze === 1 ? " bozza" : " bozze");
     elBozzeN.textContent = String(bozze);
@@ -1170,12 +1436,15 @@
   /* ---------- risultato condivisibile ---------- */
   function testoRisultato(){
     const p = colpiSparati ? Math.round(presi / colpiSparati * 100) : 0;
-    const barre = "█".repeat(Math.max(1, Math.round(p / 10))) + "░".repeat(10 - Math.max(1, Math.round(p / 10)));
-    return "REFUSI · correzione di bozze\n" +
+    const q = Math.max(1, Math.round(p / 10));
+    const barre = "█".repeat(q) + "░".repeat(Math.max(0, 10 - q));
+    return "REFUSI · il foglio in macchina\n" +
            fmt(punti) + " punti — " + tiratura + "ª tiratura\n" +
-           barre + "  " + p + "% di precisione\n" +
-           presi + " refusi presi · " + bucati + " buchi · " + scappati + " andati in stampa\n" +
-           "Ultimo carattere in macchina: " + coppia.a[0] + "\n" + SHARE_URL;
+           barre + "  " + p + "% a segno\n" +
+           plur(parolePrese, "parola composta", "parole composte") + " · " +
+           presi + " lettere abbattute · " + scappati + " andate in stampa\n" +
+           (indiceParola ? "Ero a " + parola.slice(0, indiceParola) + "… di " + parola + "\n" : "") +
+           SHARE_URL;
   }
   copyBtn.addEventListener("click", function(){
     const t = testoRisultato();
@@ -1398,7 +1667,8 @@
     tag.className = "tag";
     const d = r.dati || {};
     const parti = [(r.level || 1) + "ª tiratura"];
-    if (typeof d.precisione === "number") parti.push(d.precisione + "% preciso");
+    if (typeof d.parole === "number") parti.push(plur(d.parole, "parola", "parole"));
+    if (typeof d.precisione === "number") parti.push(d.precisione + "% a segno");
     parti.push(dayToLabel(r.day));
     tag.textContent = parti.join(" · ");
     nm.appendChild(tag);
@@ -1491,8 +1761,9 @@
         headers: { "Prefer": "return=minimal" },
         body: {
           gioco: GIOCO, day: dateKey(), name: nome, score: punti,
-          lines: presi, quads: 0, level: Math.max(1, Math.min(500, tiratura)),
-          dati: { presi: presi, bucati: bucati, scappati: scappati, precisione: prec }
+          lines: Math.min(100000, presi), quads: Math.min(25000, parolePrese),
+          level: Math.max(1, Math.min(500, tiratura)),
+          dati: { presi: presi, parole: parolePrese, scappati: scappati, precisione: prec }
         }
       });
       inviato = true;
@@ -1545,7 +1816,8 @@
   caricaClassifica();
 
   /* ---------- avvio ---------- */
-  cambiaCoppia();
+  nuovaParola();
+  aggiornaTiratura();
   aggiornaHud();
   preparaNome();
   resize();
@@ -1555,28 +1827,41 @@
   window.__refusi = {
     stato: function(){
       return { fase: fase, punti: punti, bozze: bozze, tiratura: tiratura,
-               lettere: lettere.length, colpi: colpi.length, presi: presi,
-               bucati: bucati, scappati: scappati, combo: combo,
-               coppia: [coppia.a[0], coppia.b[0]] };
+               lettere: lettere.length, colpi: colpi.length, bobine: bobine.length,
+               presi: presi, scappati: scappati, combo: combo,
+               parola: parola, indice: indiceParola, cerca: letteraCercata(),
+               parolePrese: parolePrese, munizione: munizione, premio: premio,
+               colpiPerSparo: assetto().colpi };
     },
     comincia: comincia,
     spara: spara,
     muovi: function(x){ macchina.x = x; },
-    metti: function(ch, refuso, x, y){
+    metti: function(ch, x, y, faccia){
       const L = nuovaLettera();
-      L.ch = ch; L.refuso = !!refuso; L.f = refuso ? coppia.b : coppia.a;
+      L.ch = ch;
+      if (faccia) L.f = faccia;
+      L.comic = false;
       ctx.font = fontCss(L.f, L.size);
-      L.w = ctx.measureText(ch).width;
+      L.w = ctx.measureText(L.ch).width;
       if (typeof x === "number") L.x = x;
       if (typeof y === "number") L.y = y;
       lettere.push(L);
       return L;
     },
-    svuota: function(){ lettere = []; colpi = []; },
-    tiraturaA: function(n){ tiratura = n; cambiaCoppia(); },
+    mettiBobina: function(k, x, y){
+      const b = nuovaBobina();
+      if (k) b.k = k;
+      if (typeof x === "number") b.x = x;
+      if (typeof y === "number") b.y = y;
+      bobine.push(b);
+      return b;
+    },
+    svuota: function(){ lettere = []; colpi = []; bobine = []; },
+    tiraturaA: function(n){ tiratura = n; aggiornaTiratura(); },
+    parolaA: function(w){ parola = w; indiceParola = 0; aggiornaParola(); },
     fine: finePartita,
     testo: testoRisultato,
-    COPPIE: COPPIE
+    PAROLE: PAROLE, MUNIZIONI: MUNIZIONI, PREMI: PREMI, FACCE: FACCE
   };
 })();
 </script>
