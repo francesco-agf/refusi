@@ -56,12 +56,19 @@ sotto al campo.
 
 ## Tecnica
 
-Un solo file, `index.html`. Nessuna dipendenza a parte i caratteri da Google Fonts, caricati con
-il solo sottoinsieme delle lettere che servono. Il marchio è SVG in linea, la macchina, i
-biglietti e le bobine sono disegnati su canvas, il rumore di sala è sintetizzato con la Web Audio
-API. La classifica è quella condivisa della sala giochi.
+Un solo file. Nessuna dipendenza a parte i caratteri da Google Fonts, caricati con il solo
+sottoinsieme delle lettere che servono. Il marchio è SVG in linea, la macchina, i biglietti e
+le bobine sono disegnati su canvas, il rumore di sala è sintetizzato con la Web Audio API.
+La classifica è quella condivisa della sala giochi.
 
 `SHARE_URL`, in cima allo script, è l'indirizzo che compare in fondo al risultato condiviso.
+
+## Il sorgente
+
+`index.html` alla radice è **generato**: non modificarlo a mano. Si lavora su
+`sorgente/refusi.html` e si rilancia `python3 sorgente/build.py` dopo ogni modifica.
+In `sorgente/` ci sono anche i collaudi automatici. Istruzioni in
+[`sorgente/LEGGIMI.md`](sorgente/LEGGIMI.md).
 
 ## Il gioco gemello
 
