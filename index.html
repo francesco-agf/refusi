@@ -605,17 +605,20 @@
     suonaMotore();
   }
 
+  /* Le lettere restano in aria più a lungo, quindi devono anche arrivare più
+     rade: se no il foglio si riempie e non si distingue più niente. */
   function intervalloSpawn(){
-    return Math.max(360, 980 - (tiratura - 1) * 78);
+    return Math.max(560, 1400 - (tiratura - 1) * 110);
   }
   /* Il tempo di caduta è tarato sull'altezza del foglio, non su un numero
      a caso: alla prima tiratura una lettera ci mette circa cinque secondi
      ad arrivare alla linea di base, all'ultima poco meno di tre. La
      difficoltà del gioco non è la velocità — è la somiglianza fra i due
      caratteri: se cadessero troppo in fretta non ci sarebbe il tempo di
-     guardarle, che è tutto quello che c'è da fare. */
+     guardarle, che è tutto quello che c'è da fare. Alla prima tiratura una
+     lettera impiega 7,2 secondi ad arrivare in fondo, all'ultima 4,2. */
   function velocitaCaduta(){
-    const secondi = Math.max(2.9, 5.0 - (tiratura - 1) * 0.34);
+    const secondi = Math.max(4.2, 7.2 - (tiratura - 1) * 0.5);
     return base / (secondi * 1000);
   }
 
