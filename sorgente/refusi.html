@@ -114,6 +114,9 @@
   .rivelazione{font-size:13px;color:var(--muted);margin:0;line-height:1.7}
   .rivelazione b{color:var(--paper);font-weight:600}
 
+  .btn.sm{padding:8px 12px;font-size:10.5px}
+  .scarica{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center}
+  body.campo-stretto .scarica .btn{padding:7px 10px;font-size:10px}
   .btn-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:6px}
   .btn{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
        padding:11px 16px;border-radius:2px;border:1px solid var(--paper);background:var(--paper);
@@ -138,10 +141,11 @@
 
   .pad{display:none;gap:8px;width:100%;max-width:520px}
   .pad button{flex:1;background:var(--surface);border:1px solid var(--rule);color:var(--paper);
-    border-radius:3px;padding:15px 0;font-size:19px;font-family:var(--ui);cursor:pointer;
+    border-radius:3px;padding:15px 0;font-size:19px;font-family:var(--ui);cursor:pointer;line-height:1;
     -webkit-user-select:none;user-select:none;touch-action:manipulation}
   .pad button:active{background:var(--surface-2)}
-  .pad .fuoco{flex:1.5;font-family:var(--mono);font-size:12px;letter-spacing:.14em}
+  .pad .fuoco{flex:1.5}
+  .pad .parola{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
 
   .colofoot{max-width:1180px;margin:36px auto 0;padding:18px 0 0;border-top:1px solid var(--rule);
     display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
@@ -445,6 +449,9 @@
           <p class="ov-score" id="ovScore" hidden>0</p>
           <p class="ov-meta" id="ovMeta" hidden></p>
           <p class="rivelazione" id="rivelazione" hidden></p>
+          <div class="scarica" id="scarica" hidden>
+            <button class="btn ghost sm" id="dlBozza">Scarica la bozza corretta</button>
+          </div>
           <div class="signup" id="signup" hidden>
             <p class="signup-msg" id="signupMsg"></p>
             <div class="signup-row" id="signupEdit" hidden>
@@ -469,7 +476,7 @@
 
       <div class="pad" id="pad">
         <button data-act="left" aria-label="Sinistra">←</button>
-        <button class="fuoco" data-act="fire">Stampa</button>
+        <button class="fuoco parola" data-act="fire">Stampa</button>
         <button data-act="right" aria-label="Destra">→</button>
       </div>
     </div>
@@ -709,6 +716,8 @@
   const ovMeta = document.getElementById("ovMeta");
   const rivelazione = document.getElementById("rivelazione");
   const startBtn = document.getElementById("startBtn");
+  const scaricaBox = document.getElementById("scarica");
+  const dlBozza = document.getElementById("dlBozza");
   const modoRiga = document.getElementById("modoRiga");
   const freeBtn = document.getElementById("freeBtn");
   const copyBtn = document.getElementById("copyBtn");
@@ -923,6 +932,8 @@
     document.getElementById("altroGioco").hidden = true;
     ovBody.hidden = false; ovTitle.hidden = false;
     reso = false;
+    corrette = []; sfuggite = [];
+    if (scaricaBox) scaricaBox.hidden = true;
     refuso = null; sigilli = 0; bolli = []; sigilloVivo = null;
     punti = 0; bozze = BOZZE; passata = 1; risolte = 0;
     presi = 0; colpiSparati = 0; scappati = 0; parolePrese = 0;
@@ -1301,8 +1312,15 @@ const MARK_PATHS = ["M 105 22 C 106 24 107 26 107 28 C 107 29 106 31 106 32 L 10
     rumore(.22, "lowpass", 900, .16);
   }
 
+  /* Quello che finisce sulla bozza corretta: ogni lettera abbattuta, con la
+     sua faccia, e il segno se era il Comic Sans. Si tiene un tetto: il foglio
+     e' un foglio, non un registro. */
+  const BOZZA_MAX = 132, SFUGGITE_MAX = 14;
+  let corrette = [], sfuggite = [];
+
   function colpisci(L, c){
     presi++;
+    if (corrette.length < BOZZA_MAX) corrette.push({ ch: L.ch, f: L.f, comic: !!L.comic });
     combo++;
     if (combo > comboMax) comboMax = combo;
     const a = assetto();
@@ -1342,8 +1360,244 @@ const MARK_PATHS = ["M 105 22 C 106 24 107 26 107 28 C 107 29 106 31 106 32 L 10
       return;
     }
     scappati++;
+    if (sfuggite.length < SFUGGITE_MAX) sfuggite.push({ ch: L.ch, f: L.f, comic: !!L.comic });
     perdiBozza("È ANDATA IN STAMPA");
   }
+
+
+  /* ---------- LA BOZZA CORRETTA ----------
+     Quello che ti porti via da Refusi. Non un punteggio: **il foglio**, con la
+     composizione che hai corretto — ogni lettera nella faccia in cui e' caduta —
+     e i Comic Sans cerchiati in rosso, con il segno in margine, come su una
+     bozza vera. In fondo, quelle che sono andate in stampa cosi' com'erano.
+
+     La correzione di bozze si fa con due segni: uno **sul testo**, dove sta
+     l'errore, e uno **in margine**, che dice cosa fare. Qui il segno sul testo
+     e' il cerchio, quello in margine e' «car. err.» — carattere errato. */
+  const BOZZA_L = 1000;
+  const BOZZA_MARGINE = 168;      // la colonna dei segni, a sinistra
+  const BOZZA_CORPO = 34;
+  const BOZZA_INTER = 58;
+
+  function disegnaBozza(c){
+    const L = BOZZA_MARGINE, R = BOZZA_L - 74;
+    const larghezza = R - L;
+
+    // prima si impagina, poi si sa quanto e' alto il foglio
+    const righe = [];
+    let riga = [], x = 0;
+    for (const v of corrette){
+      c.font = fontCss(v.comic ? COMIC : v.f, BOZZA_CORPO);
+      const w = c.measureText(v.ch).width;
+      const passo = w + BOZZA_CORPO * .42;
+      if (x + passo > larghezza && riga.length){ righe.push(riga); riga = []; x = 0; }
+      riga.push({ v: v, x: x, w: w });
+      x += passo;
+    }
+    if (riga.length) righe.push(riga);
+
+    const yTesto = 268;
+    const finaleY = yTesto + righe.length * BOZZA_INTER + (sfuggite.length ? 150 : 40);
+    const alto = Math.max(700, finaleY + 250);
+    c.canvas.width = BOZZA_L; c.canvas.height = alto;
+    c.fillStyle = "#F7F4EC"; c.fillRect(0, 0, BOZZA_L, alto);
+    filigrana(c, BOZZA_L / 2, alto / 2, alto * .56, .035, "#17191D");
+    c.textBaseline = "alphabetic";
+
+    // testata
+    c.fillStyle = "#17191D";
+    c.font = '900 46px "Bodoni Moda", Didot, Georgia, serif';
+    c.textAlign = "left";
+    c.fillText("Refusi", 74, 96);
+    const w1 = c.measureText("Refusi").width;
+    c.fillStyle = "#e20c7a";
+    c.beginPath(); c.arc(74 + w1 + 12, 89, 7, 0, 6.2832); c.fill();
+
+    c.fillStyle = "#8A8F94";
+    c.font = '500 12px "IBM Plex Mono", monospace';
+    c.textAlign = "right";
+    c.fillText("ARTI GRAFICHE FIMOGNARI · MILANO · DAL 1950", R, 68);
+    c.fillStyle = "#17191D";
+    c.font = '600 26px "IBM Plex Mono", monospace';
+    c.fillText("BOZZA CORRETTA", R, 100);
+
+    c.strokeStyle = "rgba(23,25,29,.28)"; c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(74, 122.5); c.lineTo(R, 122.5); c.stroke();
+
+    const eti = function(t, v, x, y){
+      c.textAlign = "left";
+      c.fillStyle = "#8A8F94";
+      c.font = '500 11px "IBM Plex Mono", monospace';
+      c.fillText(t.toUpperCase(), x, y);
+      c.fillStyle = "#17191D";
+      c.font = '500 19px "IBM Plex Mono", monospace';
+      c.fillText(v, x, y + 26);
+    };
+    eti("Correttore", (nomeSalvato() || "senza nome"), 74, 158);
+    eti("Data", dayToLabel(dateKey()), 74 + 300, 158);
+    eti("Passata", passata + "ª", 74 + 480, 158);
+    eti("Lettere", fmt(presi), 74 + 640, 158);
+
+    c.strokeStyle = "rgba(23,25,29,.18)"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(74, 218.5); c.lineTo(R, 218.5); c.stroke();
+    // la riga verticale del margine: su una bozza c'e' sempre
+    c.strokeStyle = "rgba(23,25,29,.14)";
+    c.beginPath(); c.moveTo(L - 26.5, 232); c.lineTo(L - 26.5, yTesto + righe.length * BOZZA_INTER - 10); c.stroke();
+
+    // la composizione
+    let y = yTesto;
+    for (const r of righe){
+      let daCorreggere = 0;
+      for (const g of r){
+        c.font = fontCss(g.v.comic ? COMIC : g.v.f, BOZZA_CORPO);
+        c.textAlign = "left";
+        c.fillStyle = "#17191D";
+        c.fillText(g.v.ch, L + g.x, y);
+        if (g.v.comic){
+          daCorreggere++;
+          // il segno sul testo: il cerchio intorno alla lettera sbagliata
+          c.strokeStyle = "#C62F16"; c.lineWidth = 1.8;
+          c.beginPath();
+          c.ellipse(L + g.x + g.w / 2, y - BOZZA_CORPO * .34,
+                    g.w * .78 + 7, BOZZA_CORPO * .62, 0, 0, 6.2832);
+          c.stroke();
+        }
+      }
+      if (daCorreggere){
+        // il segno in margine: dice cosa fare
+        c.fillStyle = "#C62F16";
+        c.font = 'italic 600 17px "Bodoni Moda", Didot, Georgia, serif';
+        c.textAlign = "right";
+        c.fillText("car. err." + (daCorreggere > 1 ? " ×" + daCorreggere : ""), L - 38, y);
+      }
+      y += BOZZA_INTER;
+    }
+    if (!righe.length){
+      c.fillStyle = "#B4B0A6";
+      c.font = '500 18px "IBM Plex Mono", monospace';
+      c.textAlign = "left";
+      c.fillText("Nessuna lettera corretta: il foglio è bianco.", L, yTesto);
+      y = yTesto + BOZZA_INTER;
+    }
+
+    // quelle che sono passate
+    if (sfuggite.length){
+      y += 26;
+      c.strokeStyle = "rgba(198,47,22,.35)"; c.lineWidth = 1;
+      c.beginPath(); c.moveTo(74, y - 24.5); c.lineTo(R, y - 24.5); c.stroke();
+      c.fillStyle = "#C62F16";
+      c.font = '500 11px "IBM Plex Mono", monospace';
+      c.textAlign = "left";
+      c.fillText("ANDATE IN STAMPA COSÌ", 74, y);
+      let sx = 74;
+      y += 42;
+      for (const v of sfuggite){
+        c.font = fontCss(v.comic ? COMIC : v.f, BOZZA_CORPO);
+        c.fillStyle = "rgba(23,25,29,.45)";
+        const w = c.measureText(v.ch).width;
+        c.fillText(v.ch, sx, y);
+        // la barra della cancellatura
+        c.strokeStyle = "#C62F16"; c.lineWidth = 1.6;
+        c.beginPath();
+        c.moveTo(sx - 3, y + 6); c.lineTo(sx + w + 3, y - BOZZA_CORPO * .78);
+        c.stroke();
+        sx += w + BOZZA_CORPO * .62;
+      }
+      y += 24;
+    }
+
+    // il riepilogo
+    const base = alto - 176;
+    c.strokeStyle = "rgba(23,25,29,.18)"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(74, base - 34.5); c.lineTo(R, base - 34.5); c.stroke();
+    const voce = function(t, v, x){
+      c.textAlign = "left";
+      c.fillStyle = "#8A8F94";
+      c.font = '500 11px "IBM Plex Mono", monospace';
+      c.fillText(t.toUpperCase(), x, base);
+      c.fillStyle = "#17191D";
+      c.font = '600 30px "IBM Plex Mono", monospace';
+      c.fillText(v, x, base + 34);
+    };
+    const prec = colpiSparati ? Math.round(presi / colpiSparati * 100) : 0;
+    voce("Lettere", fmt(presi), 74);
+    voce("Parole", fmt(parolePrese), 74 + 210);
+    voce("A segno", prec + "%", 74 + 390);
+    voce("Sfuggite", fmt(scappati), 74 + 570);
+
+    c.textAlign = "right";
+    c.fillStyle = "#8A8F94";
+    c.font = '500 11px "IBM Plex Mono", monospace';
+    c.fillText("PUNTI", R, base);
+    c.fillStyle = "#17191D";
+    c.font = '600 44px "IBM Plex Mono", monospace';
+    c.fillText(fmt(punti), R, base + 38);
+
+    if (sigilli){
+      disegnaSigillo(c, R - 62, alto - 104, 34, 1, false);
+      c.fillStyle = "#8A8F94";
+      c.font = '500 11px "IBM Plex Mono", monospace';
+      c.textAlign = "center";
+      c.fillText(plur(sigilli, "SIGILLO", "SIGILLI").toUpperCase(), R - 62, alto - 58);
+    }
+
+    c.strokeStyle = "rgba(23,25,29,.18)"; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(74, alto - 82.5); c.lineTo(R, alto - 82.5); c.stroke();
+    c.fillStyle = "#6B6F73";
+    c.font = '500 12px "IBM Plex Mono", monospace';
+    c.textAlign = "left"; c.textBaseline = "top";
+    c.fillText("VISTO SI STAMPI · IL CORRETTORE", 74, alto - 68);
+    c.fillText(SHARE_URL.replace("https://", "").toUpperCase(), 74, alto - 46);
+  }
+  /* ---- consegna del file ---- */
+  function scaricaBlob(blob, nome){
+    const u = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = u; a.download = nome; a.rel = "noopener";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){
+      try { document.body.removeChild(a); } catch(e){}
+      URL.revokeObjectURL(u);
+    }, 5000);
+  }
+  function consegnaFoglio(blob, nome, btn, base){
+    const fine = function(msg){
+      btn.disabled = false; btn.textContent = msg;
+      setTimeout(function(){ btn.textContent = base; }, 2600);
+    };
+    try {
+      if (window.File && navigator.canShare){
+        const file = new File([blob], nome, { type: blob.type });
+        if (navigator.canShare({ files: [file] })){
+          navigator.share({ files: [file], title: "Tiratura", text: INVITO })
+            .then(function(){ fine("Fatto"); },
+                  function(){ scaricaBlob(blob, nome); fine("Scaricato"); });
+          return;
+        }
+      }
+    } catch(e){}
+    scaricaBlob(blob, nome);
+    fine("Scaricato");
+  }
+  if (dlBozza) dlBozza.addEventListener("click", function(){
+    const base = dlBozza.dataset.base || dlBozza.textContent;
+    dlBozza.dataset.base = base;
+    dlBozza.disabled = true; dlBozza.textContent = "Correggo…";
+    setTimeout(function(){
+      try {
+        const cv2 = document.createElement("canvas");
+        disegnaBozza(cv2.getContext("2d"));
+        cv2.toBlob(function(b){
+          if (!b){ dlBozza.disabled = false; dlBozza.textContent = base; return; }
+          const chi = (nomeSalvato() || "refusi").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          consegnaFoglio(b, "bozza-" + chi + "-" + Math.round(punti) + ".jpg", dlBozza, base);
+        }, "image/jpeg", .92);
+      } catch(e){
+        dlBozza.disabled = false; dlBozza.textContent = base;
+      }
+    }, 30);
+  });
+  window.__disegnaProva = disegnaBozza;   // serve solo al collaudo
 
   function finePartita(){
     fase = "over";
@@ -1366,6 +1620,7 @@ const MARK_PATHS = ["M 105 22 C 106 24 107 26 107 28 C 107 29 106 31 106 32 L 10
         parola.slice(0, indiceParola) + "</b>" + (indiceParola ? "…" : "") + " di <b>" + parola + "</b>."
       : "Non hai composto nessuna parola. Eri arrivato a <b>" +
         (indiceParola ? parola.slice(0, indiceParola) + "…" : "zero lettere") + "</b> di <b>" + parola + "</b>.";
+    if (scaricaBox) scaricaBox.hidden = false;
     etichetteModo(true);
     copyBtn.hidden = false; copyBtn.textContent = "Copia risultato";
     startName.hidden = true;
@@ -1385,6 +1640,7 @@ const MARK_PATHS = ["M 105 22 C 106 24 107 26 107 28 C 107 29 106 31 106 32 L 10
       ovBody.hidden = false;
       ovScore.hidden = true; ovMeta.hidden = true; rivelazione.hidden = true;
       copyBtn.hidden = true; signup.hidden = true; startName.hidden = true;
+      if (scaricaBox) scaricaBox.hidden = true;
       document.getElementById("altroGioco").hidden = true;
       giveUpBtn.hidden = false;
       startBtn.textContent = "Riprendi";
@@ -2509,6 +2765,19 @@ const MARK_PATHS = ["M 105 22 C 106 24 107 26 107 28 C 107 29 106 31 106 32 L 10
 
   /* API per le prove automatiche */
   window.__refusi = {
+    /* per il collaudo della bozza: riempie il foglio senza dover sparare bene */
+    riempiBozza: function(n, ogni){
+      corrette = []; sfuggite = [];
+      for (let i = 0; i < (n || 60); i++){
+        const comic = ogni ? (i % ogni === 0) : (i % 9 === 0);
+        corrette.push({ ch: ALFABETO.charAt(i % ALFABETO.length),
+                        f: FACCE[i % FACCE.length], comic: comic });
+      }
+      for (let i = 0; i < 5; i++)
+        sfuggite.push({ ch: ALFABETO.charAt((i * 5) % ALFABETO.length),
+                        f: FACCE[(i * 3) % FACCE.length], comic: i === 2 });
+      return [corrette.length, sfuggite.length];
+    },
     // il collaudo del giorno: quello che dipende dal caso
     impronta: function(){ return lettere.map(function(l){ return l.ch + Math.round(l.x); }).join(","); },
     // il collaudo della guida: c'e'? e si spegne?
