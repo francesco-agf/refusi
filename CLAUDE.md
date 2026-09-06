@@ -1,96 +1,42 @@
-# AGF Arcade — Refusi — lo sparatutto tipografico
+# Refusi — lo sparatutto tipografico
 
-Contesto per Claude Code. Il **brief operativo** in corso e il piano di lavoro stanno in
-`PASSAGGIO.md` nel repo della sala (`francesco-agf/francesco-agf.github.io`): leggilo prima di
-toccare qualunque cosa.
+Repo `francesco-agf/refusi` → https://francesco-agf.github.io/refusi/
+Secondo gioco della sala giochi AGF. La famiglia è di cinque repo:
+`francesco-agf.github.io` (la sala), `baseline`, `refusi`, `leporello`, `tiratura`.
 
-## Cos'e' questo repo
+## Prima di toccare qualcosa
 
-Si e' rovesciata la cassa e le lettere piovono sul foglio, ognuna nel suo carattere.
-Una macchina da stampa in fondo le abbatte: **si spara a tutte**, e quella evidenziata in cima
-fa avanzare la parola da comporre. Ogni tre passate scende **il Comic Sans**, che contagia le
-altre lettere finche' non lo abbatti. A fine partita resta **la bozza corretta**: la
-composizione coi refusi cerchiati in rosso e «car. err.» in margine.
+Il quaderno di progetto sta su Google Drive, in **Sala Giochi AGF / Quaderno**.
+Va letto prima di cominciare — qui ci sono solo dieci righe di promemoria.
 
-Fa parte di una **sala di cinque repository** — quattro giochi piu' la pagina d'ingresso — che
-si comportano come un prodotto solo:
-
-| Repo | Indirizzo pubblico |
+| File | Cosa contiene |
 |---|---|
-| `francesco-agf/francesco-agf.github.io` | https://francesco-agf.github.io/ |
-| `francesco-agf/baseline` | https://francesco-agf.github.io/baseline/ |
-| `francesco-agf/refusi` | https://francesco-agf.github.io/refusi/ |
-| `francesco-agf/leporello` | https://francesco-agf.github.io/leporello/ |
-| `francesco-agf/tiratura` | https://francesco-agf.github.io/tiratura/ |
+| `AGF-come-si-lavora.md` | come si monta, come si prova, come si pubblica |
+| `AGF-decisioni.md` | che cosa è stato deciso, e perché |
+| `AGF-marchio.md` | bianco su scuro, nero su bianco |
+| `AGF-refusi.md` | **questo gioco**: le sette coppie, i tempi, il Refuso |
+| `AGF-sala.md` | classifiche, database, ponte fra i giochi, privacy |
 
-Repo separati per una ragione precisa: GitHub Pages accetta **un solo dominio personalizzato
-per repository**. Gli indirizzi sono gia' stati condivisi e **non cambiano**.
+## Le quattro cose da non sbagliare
 
-## Le due forme dello stesso codice — la regola che rompe tutto se ignorata
+1. **`index.html` è generato.** Si modifica `sorgente/refusi.html`, poi
+   `python3 sorgente/build.py`. Le prove girano su `index.html`: senza il montaggio si
+   prova la versione vecchia. È la trappola numero uno.
+2. **Il livello si chiama «passata», non «tiratura».** Quel nome è del quarto gioco.
+3. **Si scrive in italiano.** Funzioni, variabili, commenti, messaggi.
+4. **Supabase non si tocca** e **Aruba è in stand-by**.
 
-    sorgente/refusi.html   il sorgente di lavoro. Non ha doctype ne' <head>.
-    index.html        la versione pubblicata, con la testata completa.
-                      E' GENERATA: non si modifica a mano.
+## Le prove
 
-Si modifica **sempre** `sorgente/refusi.html` e poi si rigenera:
+Playwright, in `sorgente/`, più quelle comuni in `../sala/sorgente/`: i cinque repo vanno
+clonati come cartelle sorelle e quello della sala **deve** chiamarsi `sala`.
+`node prova-<nome>.js` dalla cartella `sorgente/`. Prima di pubblicare girano tutte.
 
-    python3 sorgente/build.py
+Attenzione: `comincia()` non parte senza nome — le prove devono mettere `agf.giocatore` in
+`localStorage` con `addInitScript` prima di caricare la pagina. E per misurare la caduta si
+legge `L.vy`, non lo spostamento reale: in secondo piano `requestAnimationFrame` si ferma.
 
-`build.py` incolla `sorgente/testa.html` davanti al corpo del sorgente. Va rilanciato **dopo
-ogni modifica**: i collaudi girano su `index.html`, e le media query del telefono funzionano
-solo li', perche' il sorgente non ha il meta viewport.
+## Pubblicare
 
-Se modifichi `index.html` a mano, la modifica sparisce alla prossima build. Se modifichi il
-sorgente e non ricostruisci, pubblichi la versione vecchia.
-
-## Come si collauda
-
-Servono `playwright` e Chromium. Dalla cartella `sorgente/`:
-
-    node prova-gioco.js         il giro completo
-    node prova-bozza.js         la bozza corretta da scaricare
-    node prova-classifica.js    l'invio del punteggio
-
-Le prove aprono `index.html` da `file://` e pilotano il gioco dalle API di collaudo
-(`window.__refusi`). Non aspettano tempi fissi: chiamano l'avanzamento a mano, perche'
-`requestAnimationFrame` si ferma quando la scheda va in secondo piano.
-
-## Pubblicazione
-
-GitHub Pages, **branch `main`, cartella radice**, workflow automatico
-`pages build and deployment`. Nessuna Action personalizzata, nessuna cartella `/docs`,
-nessun `gh-pages`.
-
-**Un branch di lavoro non e' pubblicato finche' non entra in `main`.** Il ciclo e':
-branch -> collaudo -> merge in `main` -> attesa del workflow -> verifica dell'URL pubblico.
-
-## Cose da non rompere
-
-- **La famiglia.** I quattro giochi devono sembrare fatti dalla stessa mano. C'e' una prova
-  che lo pretende: `sala/sorgente/prova-famiglia-stili.js` confronta gli stili calcolati dei
-  quattro giochi e fallisce se divergono. Se cambi un pulsante qui, cambialo in tutti e quattro.
-- **Il nome del giocatore** sta in `localStorage` sotto la chiave condivisa `agf.giocatore`,
-  uguale per tutta la sala. La vecchia `baseline.nome` resta letta come ripiego.
-- **La classifica** e' la tabella `public.scores` di Supabase, condivisa fra i quattro giochi,
-  con la chiave pubblicabile nel client e RLS in sola lettura e inserimento. Non toccare lo
-  schema remoto.
-- **Gli indirizzi nel codice sono assoluti**, non relativi: i collegamenti fra i giochi
-  funzionano anche fuori dal loro sottopercorso.
-- **Niente `localhost`, IP privati, `file://` o percorsi del computer** in quello che va
-  pubblicato.
-
-## Attenzione, qui
-
-- Il livello si chiama **passata**, non «tiratura»: «Tiratura» e' il nome del quarto gioco
-  della sala e la parola non deve valere due cose.
-- `--accent` e' `#EC2288`, il magenta di casa schiarito: il `#E20C7A` puro si ferma a 4,29:1
-  sul fondo scuro e non passa il minimo di leggibilita'.
-- Le dieci famiglie di caratteri arrivano da Google Fonts. Se non caricano, le lettere cadono
-  su un fallback e il gioco perde senso: e' una dipendenza esterna nota.
-
-## Il tono
-
-Il progetto e' un pezzo di marketing di una tipografia milanese del 1950. Tutto — interfaccia,
-regole, commenti nel codice, messaggi di commit — e' in **italiano**, e usa il vocabolario del
-mestiere: forma, registro, segnatura, passata, bozza, sigillo, mazzetta. I commenti nel codice
-spiegano **perche'** una cosa e' fatta cosi', non cosa fa la riga sotto. Mantieni questo tono.
+Branch di lavoro → prove → pull request → merge in `main` → GitHub Pages pubblica da sola
+dalla radice → si verifica l'URL dal vivo. Dettagli in `AGF-come-si-lavora.md`.
