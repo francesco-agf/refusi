@@ -1,0 +1,37 @@
+{
+  "id": "/refusi/",
+  "name": "Refusi — lo sparatutto tipografico",
+  "short_name": "Refusi",
+  "description": "Correzione di bozze come sparatutto: colpisci i refusi, lascia passare le lettere giuste.",
+  "lang": "it",
+  "dir": "ltr",
+  "start_url": "/refusi/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#080B0F",
+  "theme_color": "#080B0F",
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "/refusi/icona-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/refusi/icona-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/refusi/icona-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
